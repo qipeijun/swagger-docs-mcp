@@ -9,15 +9,18 @@ import {
 } from "../src/cli/client-catalog.js";
 import { removeClient, setupClient, type CommandRunner } from "../src/cli/client-setup.js";
 import { ErrorCode } from "../src/errors.js";
+import { readPackageVersion } from "../src/version.js";
+
+const currentPackageId = `swagger-docs-mcp@${readPackageVersion()}`;
 
 const launch: McpLaunchCommand = {
   command: "npx",
-  args: ["-y", "swagger-docs-mcp@0.1.0"],
-  identity: "swagger-docs-mcp@0.1.0"
+  args: ["-y", currentPackageId],
+  identity: currentPackageId
 };
 
 describe("客户端配置目录", () => {
-  it("覆盖锁定的主流 MCP 客户端并支持常用别名", () => {
+  it("覆盖已支持的 MCP 客户端并提供常用别名", () => {
     expect(SUPPORTED_CLIENT_IDS).toHaveLength(11);
     expect(normalizeClient("claude-code")).toBe("claude");
     expect(normalizeClient("github-copilot")).toBe("vscode");
@@ -30,7 +33,7 @@ describe("客户端配置目录", () => {
       mcpServers: {
         "swagger-docs": {
           command: "npx",
-          args: ["-y", "swagger-docs-mcp@0.1.0"],
+          args: ["-y", currentPackageId],
           env: {}
         }
       }
@@ -42,7 +45,7 @@ describe("客户端配置目录", () => {
       servers: {
         "swagger-docs": {
           command: "npx",
-          args: ["-y", "swagger-docs-mcp@0.1.0"],
+          args: ["-y", currentPackageId],
           env: {}
         }
       }
@@ -53,7 +56,7 @@ describe("客户端配置目录", () => {
         servers: {
           "swagger-docs": {
             type: "local",
-            command: ["npx", "-y", "swagger-docs-mcp@0.1.0"],
+            command: ["npx", "-y", currentPackageId],
             codemode: false
           }
         }
@@ -61,7 +64,7 @@ describe("客户端配置目录", () => {
     });
   });
 
-  it("客户端清单明确区分自动安装和仅生成配置", () => {
+  it("客户端清单明确区分自动配置和仅生成配置", () => {
     const catalog = formatClientCatalog();
     expect(catalog).toContain("gemini: Gemini CLI；自动写入并核验启动命令一致性");
     expect(catalog).toContain("trae: Trae；生成配置，不写文件");
@@ -74,14 +77,14 @@ describe("客户端安装流程", () => {
     {
       client: "codex" as const,
       command: "codex",
-      addArgs: ["mcp", "add", "swagger-docs", "--", "npx", "-y", "swagger-docs-mcp@0.1.0"]
+      addArgs: ["mcp", "add", "swagger-docs", "--", "npx", "-y", currentPackageId]
     },
     {
       client: "claude" as const,
       command: "claude",
       addArgs: [
         "mcp", "add", "--scope", "user", "swagger-docs", "--",
-        "npx", "-y", "swagger-docs-mcp@0.1.0"
+        "npx", "-y", currentPackageId
       ]
     }
   ])("$client 使用官方 CLI 参数并在写入后核验", ({ client, command, addArgs }) => {
@@ -97,8 +100,8 @@ describe("客户端安装流程", () => {
         ? {
             status: 0,
             stdout: client === "codex"
-              ? JSON.stringify({ transport: { type: "stdio", command: "npx", args: ["-y", "swagger-docs-mcp@0.1.0"] } })
-              : "command: npx\nargs: -y swagger-docs-mcp@0.1.0",
+              ? JSON.stringify({ transport: { type: "stdio", command: "npx", args: ["-y", currentPackageId] } })
+              : `command: npx\nargs: -y ${currentPackageId}`,
             stderr: ""
           }
         : {
@@ -123,7 +126,7 @@ describe("客户端安装流程", () => {
         ? {
             status: 0,
             stdout: JSON.stringify({
-              transport: { command: "npx", args: ["-y", "swagger-docs-mcp@0.1.0"] }
+              transport: { command: "npx", args: ["-y", currentPackageId] }
             }),
             stderr: "diagnostic warning"
           }
@@ -143,14 +146,14 @@ describe("客户端安装流程", () => {
         installed = true;
         expect(args).toEqual([
           "mcp", "add", "--scope", "user", "swagger-docs",
-          "npx", "--", "-y", "swagger-docs-mcp@0.1.0"
+          "npx", "--", "-y", currentPackageId
         ]);
         return { status: 0, stdout: "added", stderr: "" };
       }
       return {
         status: 0,
         stdout: installed
-          ? "✓ swagger-docs: command: npx -y swagger-docs-mcp@0.1.0 (stdio) - Connected"
+          ? `✓ swagger-docs: command: npx -y ${currentPackageId} (stdio) - Connected`
           : "No MCP servers",
         stderr: ""
       };

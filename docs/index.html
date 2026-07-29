@@ -97,20 +97,30 @@ section{padding:6rem 0}
 /* ===== Demo Section ===== */
 .demo .container{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center}
 @media(max-width:768px){.demo .container{grid-template-columns:1fr;gap:2rem}}
-.demo-content{display:flex;flex-direction:column;gap:1rem}
-.demo-list{list-style:none;display:flex;flex-direction:column;gap:0.75rem;margin-top:0.5rem}
-.demo-list li{display:flex;align-items:flex-start;gap:0.75rem;font-size:0.9375rem;color:#444;line-height:1.6}
-.demo-check{color:#1B5E3C;font-weight:700;flex-shrink:0;margin-top:0.125rem;font-variant-numeric:tabular-nums}
+.demo-content{display:flex;min-width:0;flex-direction:column;gap:1rem}
+.demo-list{display:flex;min-width:0;list-style:none;flex-direction:column;gap:1rem;margin-top:0.5rem}
+.demo-list li{display:grid;min-width:0;grid-template-columns:1.75rem minmax(0,1fr);gap:0.5rem;font-size:0.9375rem;color:#444;line-height:1.6}
+.demo-check{color:#1B5E3C;font-weight:700;margin-top:0.0625rem;font-variant-numeric:tabular-nums}
+.demo-step-content{display:flex;min-width:0;flex-direction:column;align-items:flex-start;gap:0.5rem}
+.demo-command,.demo-inline-code{font-family:"JetBrains Mono",Menlo,monospace;background:rgba(0,0,0,0.05);border-radius:4px}
+.demo-command{display:block;width:100%;max-width:100%;padding:0.45rem 0.625rem;color:#333;font-size:0.8125rem;line-height:1.6;white-space:normal;overflow-wrap:anywhere;word-break:break-word}
+.demo-inline-code{padding:0.15em 0.5em;font-size:0.9em}
 .code-block{background:#1B1F23;border-radius:8px;overflow:hidden;box-shadow:0 16px 48px rgba(0,0,0,0.1)}
 .code-block .terminal-bar{padding:0.625rem 1rem}
 .code-block .terminal-body{padding:1.5rem;min-height:unset}
 .code-block .terminal-body pre{margin:0;color:#E6EDF3;font-family:"JetBrains Mono",Menlo,monospace;font-size:0.8125rem;line-height:1.8;white-space:pre-wrap;word-break:break-all}
 
 /* ===== Clients ===== */
-.clients-grid{display:flex;flex-wrap:wrap;justify-content:center;gap:0.625rem;margin-top:1rem}
+.client-groups{display:flex;width:100%;max-width:960px;min-width:0;margin:0 auto;flex-direction:column;gap:1.5rem}
+.client-group{display:grid;width:100%;min-width:0;grid-template-columns:11rem minmax(0,1fr);align-items:start;gap:1.25rem}
+.client-group-title{display:flex;align-items:center;justify-content:flex-end;gap:0.5rem;padding:0.5rem 0;color:#444;font-size:0.875rem;font-weight:600;white-space:nowrap}
+.client-group-title::before{width:0.5rem;height:0.5rem;border-radius:2px;background:#C9C3B8;content:""}
+.client-group[data-client-group="automatic"] .client-group-title{color:#1B5E3C}
+.client-group[data-client-group="automatic"] .client-group-title::before{background:#1B5E3C}
+.clients-grid{display:flex;min-width:0;flex-wrap:wrap;justify-content:flex-start;gap:0.625rem}
 .client-tag{padding:0.5rem 1rem;border-radius:100px;font-size:0.875rem;font-weight:500;color:#1B1F23;background:#F2EDE4;cursor:default;white-space:nowrap}
-.client-tag:hover{background:rgba(27,94,60,0.1);color:#1B5E3C}
-.client-tag.primary{background:#1B5E3C;color:#fff}
+.client-group[data-client-group="automatic"] .client-tag{background:rgba(27,94,60,0.1);color:#164C31}
+@media(max-width:768px){.client-group{grid-template-columns:1fr;gap:0.625rem}.client-group-title{justify-content:center}.clients-grid{justify-content:center}}
 
 /* ===== CTA ===== */
 .cta{text-align:center;padding:7rem 0}
@@ -118,6 +128,18 @@ section{padding:6rem 0}
 .cta-copy{display:inline-flex;align-items:flex-start;gap:0.5rem;max-width:calc(100% - 2rem);padding:0.75rem 1.25rem;background:#1B1F23;color:#E6EDF3;border-radius:8px;font-family:"JetBrains Mono",Menlo,monospace;font-size:0.875rem;text-align:left;cursor:text;user-select:all;-webkit-user-select:all}
 .cta-copy code{min-width:0;color:#3FB950;font-weight:500;font-size:0.875rem;white-space:normal;overflow-wrap:anywhere}
 .cta p{color:#555;font-size:1.0625rem;line-height:1.65}
+
+/* ===== Agent Install ===== */
+.agent-install{background:#fff;border-top:1px solid rgba(0,0,0,0.04);border-bottom:1px solid rgba(0,0,0,0.04)}
+.agent-install .container{max-width:960px}
+.agent-install-header{max-width:42rem;margin:0 auto 2rem;text-align:center;display:flex;flex-direction:column;gap:0.75rem}
+.agent-install-header p{color:#555;font-size:1.0625rem;line-height:1.65}
+.agent-prompt{background:#1B1F23;border-radius:8px;overflow:hidden;box-shadow:0 16px 48px rgba(0,0,0,0.08)}
+.agent-prompt pre{max-height:25rem;overflow:auto;padding:1.5rem;color:#E6EDF3;font-family:"JetBrains Mono",Menlo,monospace;font-size:0.8125rem;line-height:1.75;white-space:pre-wrap;overflow-wrap:anywhere}
+.agent-prompt-actions{display:flex;align-items:center;gap:1rem;padding:1rem 1.5rem;background:#2A2E33;border-top:1px solid rgba(255,255,255,0.06)}
+.agent-prompt-actions .btn{min-width:8.5rem;justify-content:center}
+.copy-status{min-height:1.5rem;color:#C9D1D9;font-size:0.875rem}
+@media(max-width:600px){.agent-prompt pre{padding:1rem;font-size:0.75rem}.agent-prompt-actions{align-items:flex-start;flex-direction:column;padding:1rem}.agent-prompt-actions .btn{width:100%}}
 
 /* ===== Footer ===== */
 .footer{padding:2rem 0;border-top:1px solid rgba(0,0,0,0.06);font-size:0.8125rem;color:#888}
@@ -156,13 +178,13 @@ section{padding:6rem 0}
     <div class="container">
       <div class="hero-content">
         <div class="hero-eyebrow">
-          npm 预发布 &thinsp;·&thinsp; AI 编程助手 &thinsp;×&thinsp; Swagger 文档
+          AI Agent &thinsp;×&thinsp; Swagger / Knife4j
         </div>
         <h1 class="display display-lg hero-title">
           让 AI <span class="highlight">读懂</span>你的 API 文档
         </h1>
         <p class="hero-desc">
-          将 Swagger 文档实时接入 AI 编程助手。每次查询都从目标地址获取最新结果，不缓存、不保存、不绑定工程。
+          把实时 Swagger 文档作为只读 MCP 工具提供给 AI 编程助手。每次查询都从目标地址获取最新结果，不缓存、不保存、不绑定工程。
         </p>
         <div class="hero-actions">
           <a href="#install" class="btn btn-primary btn-lg">快速开始</a>
@@ -171,7 +193,7 @@ section{padding:6rem 0}
       </div>
 
       <div class="terminal-wrapper">
-        <p class="sr-only">发布后流程演示：运行 npx 安装后，在 AI 对话中提供文档地址和查询目标，即可实时返回接口分类和来源信息。当前 npm 包尚未发布。</p>
+        <p class="sr-only">使用流程演示：运行 npx 配置命令后，在 AI 对话中提供文档地址和查询目标，即可实时返回接口分类和来源信息。</p>
         <div class="terminal" id="terminal" aria-hidden="true">
           <div class="terminal-bar">
             <span class="terminal-dot"></span>
@@ -189,9 +211,9 @@ section{padding:6rem 0}
   <section class="features" id="features">
     <div class="container">
       <div class="section-header">
-        <p class="caption">设计</p>
-        <h2 class="display display-md">为 AI 查询而生</h2>
-        <p>不是文档浏览工具，而是让 AI 精准、安全、实时读取 API 规范的 MCP 协议层</p>
+        <p class="caption">能力</p>
+        <h2 class="display display-md">面向 Agent 的实时文档查询</h2>
+        <p>将文档发现、接口定位、Schema 展开和来源信息统一为只读 MCP Tool</p>
       </div>
 
       <div class="features-grid">
@@ -232,7 +254,7 @@ section{padding:6rem 0}
           <div class="feature-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
           </div>
-          <h3>智能导航</h3>
+          <h3>分步导航</h3>
           <p>识别 Knife4j 深链接，实时验证 hash 分组、分类和 operationId 线索，引导 AI 逐级定位接口，不猜测未查验的结果。</p>
         </div>
 
@@ -240,7 +262,7 @@ section{padding:6rem 0}
           <div class="feature-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
           </div>
-          <h3>完全透明</h3>
+          <h3>来源可追溯</h3>
           <p>每个结果都注明本次查询地址、实际 Swagger 地址、获取时间和缓存状态。降低联调时错查旧文档的风险。</p>
         </div>
 
@@ -255,9 +277,21 @@ section{padding:6rem 0}
         <p class="caption">三步入门</p>
         <h2 class="display display-md">在对话中直接查询接口</h2>
         <ul class="demo-list">
-          <li><span class="demo-check">1.</span>npm 首次发布后，运行 <code style="font-family:'JetBrains Mono',monospace;font-size:0.9em;background:rgba(0,0,0,0.05);padding:0.15em 0.5em;border-radius:4px">setup claude</code> 接入 MCP 客户端</li>
-          <li><span class="demo-check">2.</span>在 AI 对话中提供 <code style="font-family:'JetBrains Mono',monospace;font-size:0.9em;background:rgba(0,0,0,0.05);padding:0.15em 0.5em;border-radius:4px">doc.html</code> 地址和查询意图</li>
-          <li><span class="demo-check">3.</span>AI 实时获取文档，返回分类、接口详情或搜索结果</li>
+          <li>
+            <span class="demo-check">1.</span>
+            <div class="demo-step-content">
+              <span>以 Claude Code 为例，运行配置命令：</span>
+              <code class="demo-command">npx --yes swagger-docs-mcp@latest setup claude</code>
+            </div>
+          </li>
+          <li>
+            <span class="demo-check">2.</span>
+            <div class="demo-step-content"><span>在 AI 对话中提供 <code class="demo-inline-code">doc.html</code> 地址和查询意图</span></div>
+          </li>
+          <li>
+            <span class="demo-check">3.</span>
+            <div class="demo-step-content"><span>AI 实时获取文档，返回分类、接口详情或搜索结果</span></div>
+          </li>
         </ul>
       </div>
       <div class="code-block">
@@ -265,14 +299,14 @@ section{padding:6rem 0}
           <span class="terminal-dot"></span><span class="terminal-dot"></span><span class="terminal-dot"></span>
         </div>
         <div class="terminal-body">
-          <pre><span style="color:#8B949E">// 列出所有接口分类</span>
+          <pre><span style="color:#8B949E">// 虚拟示例：列出接口分类</span>
 <span style="color:#E6EDF3">Tool:</span> <span style="color:#79C0FF">list_api_categories</span>
-<span style="color:#E6EDF3">docsUrl:</span> <span style="color:#A5D6FF">http://api.example.com/doc.html</span>
+<span style="color:#E6EDF3">docsUrl:</span> <span style="color:#A5D6FF">https://api.example.com/doc.html</span>
 
-<span style="color:#8B949E">// 实时返回：</span>
-<span style="color:#3FB950">uniform-study-exam-stat-controller</span>  <span style="color:#8B949E">12 个接口</span>
-<span style="color:#3FB950">user-management-controller</span>         <span style="color:#8B949E">8 个接口</span>
-<span style="color:#3FB950">system-config-controller</span>           <span style="color:#8B949E">3 个接口</span>
+<span style="color:#8B949E">// 虚拟示例输出：</span>
+<span style="color:#3FB950">account-controller</span>  <span style="color:#8B949E">6 个接口</span>
+<span style="color:#3FB950">order-controller</span>    <span style="color:#8B949E">4 个接口</span>
+<span style="color:#3FB950">catalog-controller</span>  <span style="color:#8B949E">3 个接口</span>
 
 <span style="color:#8B949E">本次查询: api.example.com/doc.html</span>
 <span style="color:#8B949E">实际地址: api.example.com/v2/api-docs</span>
@@ -286,22 +320,61 @@ section{padding:6rem 0}
   <section class="features">
     <div class="container">
       <div class="section-header">
-        <p class="caption">兼容</p>
-        <h2 class="display display-md">11 个主流 MCP 客户端</h2>
-        <p>CLI 已实现 Codex、Claude Code、Gemini CLI 自动写入与启动命令一致性核验；IDE 客户端生成配置，不写文件</p>
+        <p class="caption">客户端</p>
+        <h2 class="display display-md">覆盖 11 类 MCP 客户端</h2>
+        <p>Codex、Claude Code 和 Gemini CLI 支持自动写入配置并核验；其余客户端仅生成配置，不修改本地文件。</p>
       </div>
-      <div class="clients-grid">
-        <span class="client-tag primary">Claude Code</span>
-        <span class="client-tag">OpenAI Codex</span>
-        <span class="client-tag">Gemini CLI</span>
-        <span class="client-tag">VS Code Copilot</span>
-        <span class="client-tag">Cursor</span>
-        <span class="client-tag">Windsurf</span>
-        <span class="client-tag">Trae</span>
-        <span class="client-tag">Cline</span>
-        <span class="client-tag">Roo Code</span>
-        <span class="client-tag">Kiro</span>
-        <span class="client-tag">OpenCode v2</span>
+      <div class="client-groups">
+        <div class="client-group" data-client-group="automatic">
+          <p class="client-group-title">自动配置并核验</p>
+          <div class="clients-grid">
+            <span class="client-tag">OpenAI Codex</span>
+            <span class="client-tag">Claude Code</span>
+            <span class="client-tag">Gemini CLI</span>
+          </div>
+        </div>
+        <div class="client-group" data-client-group="template">
+          <p class="client-group-title">仅生成配置</p>
+          <div class="clients-grid">
+            <span class="client-tag">VS Code Copilot</span>
+            <span class="client-tag">Cursor</span>
+            <span class="client-tag">Windsurf</span>
+            <span class="client-tag">Trae</span>
+            <span class="client-tag">Cline</span>
+            <span class="client-tag">Roo Code</span>
+            <span class="client-tag">Kiro</span>
+            <span class="client-tag">OpenCode v2</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Agent Install Prompt -->
+  <section class="agent-install" id="agent-install">
+    <div class="container">
+      <div class="agent-install-header">
+        <p class="caption">交给 Agent</p>
+        <h2 class="display display-md">复制任务，让 Agent 完成接入</h2>
+        <p>适用于具备本机命令和文件操作能力的 Agent。任务会要求它先核实客户端与配置契约，再安装、配置并验证。</p>
+      </div>
+      <div class="agent-prompt">
+        <pre id="agentInstallPrompt" tabindex="0" aria-label="可复制的 Agent 安装任务">请帮我在当前 MCP 客户端中安装并配置 swagger-docs-mcp。
+
+要求：
+1. 先确认 Node.js 版本不低于 20，并识别当前客户端的准确名称；不要猜测客户端或配置格式。
+2. 运行 `npx --yes swagger-docs-mcp@latest setup list`，根据输出选择准确的客户端 ID。
+3. 运行 `npx --yes swagger-docs-mcp@latest setup &lt;client&gt;`。
+4. 如果命令自动写入配置，确认结果明确通过启动命令一致性核验。
+5. 如果命令只输出 JSON，仅在核实当前客户端的官方配置文件位置和结构后，合并 `swagger-docs` 条目并保留其他配置；写入后重新解析配置，核对完整启动命令。
+6. 如发现同名配置、权限错误、无法核验或外部契约不明确，立即停止并说明原因；不要覆盖、删除或猜测修复。
+7. 最后运行 `npx --yes swagger-docs-mcp@latest doctor`，并报告实际使用的客户端 ID、执行命令、修改位置和核验结果。
+
+不要保存 Swagger 文档地址、口令或 Token，也不要修改与本次接入无关的 MCP 配置。</pre>
+        <div class="agent-prompt-actions">
+          <button type="button" class="btn btn-primary" id="copyAgentPrompt" aria-describedby="copyAgentStatus">复制安装任务</button>
+          <p class="copy-status" id="copyAgentStatus" aria-live="polite"></p>
+        </div>
       </div>
     </div>
   </section>
@@ -309,15 +382,16 @@ section{padding:6rem 0}
   <!-- CTA -->
   <section class="cta" id="install">
     <div class="cta-content">
-      <p class="caption">预发布</p>
-      <h2 class="display display-md">首次发布后，一行命令接入</h2>
-      <p>当前尚未发布到 npm Registry，以下命令暂不可用。发布后需要 Node.js 20+。</p>
+      <p class="caption">npm</p>
+      <h2 class="display display-md">一行命令接入</h2>
+      <p>需要 Node.js 20 或更高版本。以下命令将为 Claude Code 写入 MCP 配置并核验启动命令。</p>
       <div class="cta-copy">
         <span style="color:#8B949E">$</span>
         <code>npx --yes swagger-docs-mcp@latest setup claude</code>
       </div>
       <div style="display:flex;gap:0.75rem;flex-wrap:wrap;justify-content:center;margin-top:0.5rem">
-        <a href="https://github.com/qipeijun/swagger-docs-mcp" class="btn btn-primary btn-lg" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://www.npmjs.com/package/swagger-docs-mcp" class="btn btn-primary btn-lg" target="_blank" rel="noopener">npm</a>
+        <a href="https://github.com/qipeijun/swagger-docs-mcp" class="btn btn-outline btn-lg" target="_blank" rel="noopener">GitHub</a>
       </div>
     </div>
   </section>
@@ -406,13 +480,13 @@ section{padding:6rem 0}
 
   function renderStatic() {
     [
-      ['comment', '# npm 首次发布后可用；当前为预发布演示'],
+      ['comment', '# 配置 Claude Code MCP 客户端'],
       ['cmd', 'npx --yes swagger-docs-mcp@latest setup claude'],
       ['success', 'Claude Code 配置已写入并通过启动命令一致性核验'],
       ['comment', '# 现在在 AI 对话中直接查询：'],
-      ['query', '列出 http://api.example.com/doc.html 的所有分类'],
-      ['success', '实时获取 5 个 API 分类，共 23 个接口'],
-      ['success', '获取时间：实时返回  未使用缓存']
+      ['query', '列出 https://api.example.com/doc.html 的所有分类'],
+      ['success', '示例结果：5 个 API 分类，共 23 个接口'],
+      ['success', '来源状态：实时获取 · 未使用缓存']
     ].forEach(function(item) {
       var line = createLine(item[0]);
       line.content.textContent = item[1];
@@ -433,7 +507,7 @@ section{padding:6rem 0}
     await sleep(600);
 
     var notice = createLine('comment');
-    notice.content.textContent = '# npm 首次发布后可用；当前为预发布演示';
+    notice.content.textContent = '# 配置 Claude Code MCP 客户端';
     showLine(notice.wrapper);
     await sleep(500);
 
@@ -462,19 +536,19 @@ section{padding:6rem 0}
 
     // Line 4
     var line4 = createLine('query');
-    line4.content.textContent = '列出 http://api.example.com/doc.html 的所有分类';
+    line4.content.textContent = '列出 https://api.example.com/doc.html 的所有分类';
     showLine(line4.wrapper);
     await sleep(400);
 
     // Line 5
     var line5 = createLine('success');
-    line5.content.textContent = '实时获取 5 个 API 分类，共 23 个接口';
+    line5.content.textContent = '示例结果：5 个 API 分类，共 23 个接口';
     showLine(line5.wrapper);
     await sleep(300);
 
     // Line 6
     var line6 = createLine('success');
-    line6.content.textContent = '  获取时间：实时返回  未使用缓存';
+    line6.content.textContent = '来源状态：实时获取 · 未使用缓存';
     showLine(line6.wrapper);
 
     // 末尾闪烁光标（纯 JS）
@@ -492,6 +566,24 @@ section{padding:6rem 0}
   }
 
   run();
+})();
+
+// ===== Agent 安装任务复制 =====
+(function() {
+  var button = document.getElementById('copyAgentPrompt');
+  var prompt = document.getElementById('agentInstallPrompt');
+  var status = document.getElementById('copyAgentStatus');
+  if (!button || !prompt || !status) return;
+
+  button.addEventListener('click', async function() {
+    try {
+      await navigator.clipboard.writeText(prompt.textContent.trim());
+      button.textContent = '已复制';
+      status.textContent = '可以直接粘贴给当前 Agent。';
+    } catch (_error) {
+      status.textContent = '复制失败，请手动选择上方文本。';
+    }
+  });
 })();
 
 // ===== Nav 滚动背景（纯 JS，无 CSS transition） =====

@@ -1,6 +1,13 @@
 # swagger-docs-mcp
 
-连接 AI Agent 与实时 API 文档的 MCP Server，让 AI 直接理解、检索并展开 Swagger / Knife4j 接口定义。
+[![npm version](https://img.shields.io/npm/v/swagger-docs-mcp?label=npm&color=CB3837)](https://www.npmjs.com/package/swagger-docs-mcp)
+[![CI](https://github.com/qipeijun/swagger-docs-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/qipeijun/swagger-docs-mcp/actions/workflows/ci.yml)
+[![Node.js 20+](https://img.shields.io/badge/Node.js-20%2B-339933?logo=nodedotjs&logoColor=white)](https://nodejs.org/)
+[![Swagger 2.0](https://img.shields.io/badge/Swagger-2.0-85EA2D?logo=swagger&logoColor=111)](#支持范围)
+[![MCP Server](https://img.shields.io/badge/MCP-Server-1B5E3C)](#mcp-tools)
+[![License MIT](https://img.shields.io/badge/License-MIT-2F6FEB)](LICENSE)
+
+连接 AI Agent 与实时 API 文档的只读 MCP 服务，让 AI 能够检索并展开 Swagger / Knife4j 接口定义。
 
 `swagger-docs-mcp` 面向需要读取后端接口文档的 AI Agent。它实时获取 Swagger 规范，将接口、参数和 Schema 转换为结构化结果，同时保持无状态、只读和来源可追溯。
 
@@ -11,7 +18,7 @@
 - **结构化 Schema**：递归展开受支持的请求体和响应模型，同时对动态 Map、循环、缺失引用和外部引用保留明确边界。
 - **结果可追溯**：每次查询均返回文档入口、实际规范地址、获取时间和文档指纹。
 - **边界明确**：不保存文档地址、不使用跨调用缓存、不调用业务接口，也不推测无法解析的字段。
-- **多客户端支持**：提供 Codex、Claude Code、Gemini CLI 及主流 IDE Agent 的接入配置。
+- **多客户端支持**：提供 Codex、Claude Code、Gemini CLI 及 IDE Agent 客户端的接入配置。
 
 ## 快速开始
 
@@ -19,7 +26,7 @@
 
 ### 接入 MCP 客户端
 
-以下命令在 npm 首次发布后可直接使用；当前 `0.1.0` 尚未发布到 npm Registry。Codex、Claude Code 和 Gemini CLI 会自动写入配置，并核验实际启动命令是否与预期一致：
+[`swagger-docs-mcp`](https://www.npmjs.com/package/swagger-docs-mcp) 已发布到 npm Registry，以下命令可直接使用。Codex、Claude Code 和 Gemini CLI 会自动写入配置，并核验实际启动命令是否与预期一致：
 
 ```bash
 npx --yes swagger-docs-mcp@latest setup codex
@@ -41,13 +48,32 @@ npx --yes swagger-docs-mcp@latest setup opencode
 npx --yes swagger-docs-mcp@latest setup list
 ```
 
-自动安装会把当前精确包版本写入客户端配置，确保后续启动可复现。卸载本项目创建的旧版本配置：
+自动配置会把当前精确包版本写入客户端配置，确保后续启动可复现。卸载本项目创建的旧版本配置：
 
 ```bash
 npx --yes swagger-docs-mcp@latest remove claude
 ```
 
 `upgrade` 当前只执行归属与安全检查。由于客户端官方 CLI 无法提供可验证的原子替换和完整回滚，检测到旧版本后会明确停止并要求手动升级，不会先删除原配置。
+
+### 让 Agent 协助接入
+
+将下面的任务直接发送给具备本机命令和文件操作能力的 Agent。任务要求 Agent 先核实客户端与配置契约，再执行安装、配置和验证，避免覆盖已有配置：
+
+```text
+请帮我在当前 MCP 客户端中安装并配置 swagger-docs-mcp。
+
+要求：
+1. 先确认 Node.js 版本不低于 20，并识别当前客户端的准确名称；不要猜测客户端或配置格式。
+2. 运行 `npx --yes swagger-docs-mcp@latest setup list`，根据输出选择准确的客户端 ID。
+3. 运行 `npx --yes swagger-docs-mcp@latest setup <client>`。
+4. 如果命令自动写入配置，确认结果明确通过启动命令一致性核验。
+5. 如果命令只输出 JSON，仅在核实当前客户端的官方配置文件位置和结构后，合并 `swagger-docs` 条目并保留其他配置；写入后重新解析配置，核对完整启动命令。
+6. 如发现同名配置、权限错误、无法核验或外部契约不明确，立即停止并说明原因；不要覆盖、删除或猜测修复。
+7. 最后运行 `npx --yes swagger-docs-mcp@latest doctor`，并报告实际使用的客户端 ID、执行命令、修改位置和核验结果。
+
+不要保存 Swagger 文档地址、口令或 Token，也不要修改与本次接入无关的 MCP 配置。
+```
 
 ### 运行诊断
 
@@ -214,8 +240,8 @@ const result = await service.listCategories("https://api.example.com/v2/api-docs
 ## 发布
 
 1. 更新版本号和 [CHANGELOG.md](CHANGELOG.md)，运行 `npm run check` 与 `npm pack --dry-run`。
-2. 在 npm 包设置中为本仓库的 `publish.yml` 配置 Trusted Publisher，并在 GitHub 创建 `npm` Environment。
-3. 创建与 `package.json` 一致的 `vX.Y.Z` GitHub Release。工作流将重新执行发布门禁并通过 OIDC 发布带来源证明的包。
+2. 确认 npm Trusted Publisher 仍绑定本仓库的 `publish.yml`，且 GitHub `npm` Environment 的保护规则与发布权限符合预期；这些属于一次性配置，相关契约变化时才需更新。
+3. 创建与 `package.json` 一致的 `vX.Y.Z` GitHub Release。工作流将重新执行发布门禁，并通过 OIDC 发布包及请求生成来源证明。
 
 `prepublishOnly` 会在手工执行 `npm publish` 时强制运行类型检查、完整测试和构建。`0.x` 阶段允许在次版本中调整实验性能力；计划对外稳定后再发布 `1.0.0`。
 
