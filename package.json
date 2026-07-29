@@ -1,0 +1,58 @@
+{
+  "name": "swagger-docs-mcp",
+  "version": "0.1.0",
+  "description": "Stateless MCP server for querying live Swagger API documentation",
+  "type": "module",
+  "bin": {
+    "swagger-docs-mcp": "dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:integration": "vitest run tests/mcp-integration.test.ts",
+    "test:watch": "vitest",
+    "check": "npm run typecheck && npm test && npm run build",
+    "dev": "tsx src/index.ts",
+    "start": "node dist/index.js",
+    "prepack": "npm run build"
+  },
+  "keywords": [
+    "mcp",
+    "swagger",
+    "swagger-2",
+    "api-documentation",
+    "model-context-protocol"
+  ],
+  "author": "qipeijun",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/qipeijun/swagger-docs-mcp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/qipeijun/swagger-docs-mcp/issues"
+  },
+  "homepage": "https://github.com/qipeijun/swagger-docs-mcp#readme",
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "tsx": "^4.23.1",
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.10"
+  }
+}
