@@ -28,29 +28,26 @@ section{padding:6rem 0}
 @media(max-width:768px){section{padding:3.5rem 0}}
 
 /* ===== Nav ===== */
-.nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1rem 0;background:transparent;transition:background 0.3s,box-shadow 0.3s}
-.nav.scrolled{background:rgba(252,250,247,0.92);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);box-shadow:0 1px 0 rgba(0,0,0,0.06)}
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1rem 0}
 .nav .container{display:flex;align-items:center;justify-content:space-between}
 .nav-logo{font-family:Fraunces,Georgia,serif;font-weight:700;font-size:1.2rem;color:#1B1F23;text-decoration:none;letter-spacing:-0.01em}
 .nav-logo span{color:#1B5E3C}
-.nav-link{font-size:0.875rem;color:#555;text-decoration:none;font-weight:500;transition:color 0.2s;padding:0.5rem 0;display:inline-flex;align-items:center;gap:0.375rem}
+.nav-link{font-size:0.875rem;color:#555;text-decoration:none;font-weight:500;padding:0.5rem 0;display:inline-flex;align-items:center;gap:0.375rem}
 .nav-link:hover{color:#1B5E3C}
 .nav-link:focus-visible{outline:2px solid #1B5E3C;outline-offset:4px;border-radius:4px}
 
 /* ===== Buttons ===== */
-.btn{display:inline-flex;align-items:center;gap:0.5rem;padding:0.75rem 1.5rem;border-radius:8px;font-family:Inter,sans-serif;font-size:0.9375rem;font-weight:600;text-decoration:none;cursor:pointer;border:none;position:relative;transition:transform 0.25s cubic-bezier(0.2,0,0,1),box-shadow 0.25s cubic-bezier(0.2,0,0,1);will-change:transform}
-.btn:active{transform:scale(0.97)}
+.btn{display:inline-flex;align-items:center;gap:0.5rem;padding:0.75rem 1.5rem;border-radius:8px;font-family:Inter,sans-serif;font-size:0.9375rem;font-weight:600;text-decoration:none;cursor:pointer;border:none}
 .btn-primary{background:#1B5E3C;color:#fff}
-.btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(27,94,60,0.25)}
+.btn-primary:hover{background:#1F6B44}
 .btn-primary:focus-visible{outline:2px solid #1B5E3C;outline-offset:4px}
 .btn-outline{background:transparent;color:#1B5E3C;box-shadow:inset 0 0 0 1.5px #1B5E3C}
-.btn-outline:hover{background:rgba(27,94,60,0.04);transform:translateY(-1px)}
+.btn-outline:hover{background:rgba(27,94,60,0.06)}
 .btn-outline:focus-visible{outline:2px solid #1B5E3C;outline-offset:4px}
 .btn-lg{padding:0.875rem 2rem;font-size:1rem}
 
 /* ===== Hero ===== */
 .hero{padding:8rem 0 5rem;position:relative;overflow:hidden}
-.hero::before{content:"";position:absolute;top:-30%;left:50%;width:800px;height:800px;background:radial-gradient(circle,rgba(27,94,60,0.04) 0%,transparent 70%);transform:translateX(-50%);pointer-events:none}
 .hero .container{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center;position:relative;z-index:1}
 @media(max-width:768px){.hero .container{grid-template-columns:1fr;gap:2.5rem}}
 .hero-content{display:flex;flex-direction:column;gap:1.5rem}
@@ -61,25 +58,20 @@ section{padding:6rem 0}
 
 /* Terminal */
 .terminal-wrapper{position:relative}
-.terminal{background:#1B1F23;border-radius:12px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.12),0 0 0 1px rgba(0,0,0,0.04);opacity:0;transform:translateY(20px);animation:terminal-in 0.6s 0.3s cubic-bezier(0.2,0,0,1) forwards}
-@keyframes terminal-in{to{opacity:1;transform:translateY(0)}}
+.terminal{background:#1B1F23;border-radius:12px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.12),0 0 0 1px rgba(0,0,0,0.04)}
 .terminal-bar{display:flex;align-items:center;gap:0.5rem;padding:0.75rem 1rem;background:#2A2E33;border-bottom:1px solid rgba(255,255,255,0.06)}
 .terminal-dot{width:10px;height:10px;border-radius:50%}
 .terminal-dot:nth-child(1){background:#FF5F57}
 .terminal-dot:nth-child(2){background:#FFBD2E}
 .terminal-dot:nth-child(3){background:#28CA41}
 .terminal-body{padding:1.25rem 1.25rem;min-height:260px}
-.terminal-line{display:flex;align-items:flex-start;gap:0.75rem;margin-bottom:0.5rem;opacity:0;transform:translateY(8px);animation:line-in 0.35s cubic-bezier(0.2,0,0,1) forwards;min-height:1.7em}
-.terminal-line.visible{opacity:1;transform:translateY(0)}
-@keyframes line-in{to{opacity:1;transform:translateY(0)}}
+.terminal-line{display:flex;align-items:flex-start;gap:0.75rem;margin-bottom:0.5rem;min-height:1.7em;opacity:0}
 .terminal-prompt{color:#8B949E;flex-shrink:0;user-select:none}
-.terminal-text{white-space:nowrap;overflow:hidden}
+.terminal-text{white-space:nowrap;overflow:hidden;line-height:1.7}
 .terminal-text.cmd{color:#E6EDF3}
 .terminal-text.success{color:#3FB950}
 .terminal-text.comment{color:#8B949E;font-style:italic}
 .terminal-text.query{color:#79C0FF}
-.terminal-cursor{display:inline-block;width:8px;height:1em;background:#3FB950;margin-left:1px;vertical-align:text-bottom;animation:cursor-blink 1s step-end infinite}
-@keyframes cursor-blink{0%,100%{opacity:1}50%{opacity:0}}
 
 @media(max-width:768px){.terminal-body{min-height:220px;padding:1rem}.terminal-prompt,.terminal-text{font-size:0.75rem}}
 
@@ -91,8 +83,8 @@ section{padding:6rem 0}
 .features{background:#fff;border-top:1px solid rgba(0,0,0,0.04);border-bottom:1px solid rgba(0,0,0,0.04)}
 .features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2rem}
 @media(max-width:768px){.features-grid{grid-template-columns:1fr;gap:1.5rem}}
-.feature-card{padding:2rem 1.5rem;border-radius:12px;background:#FCFAF7;border:1px solid rgba(0,0,0,0.05);transition:transform 0.3s cubic-bezier(0.2,0,0,1),box-shadow 0.3s cubic-bezier(0.2,0,0,1)}
-.feature-card:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(0,0,0,0.05)}
+.feature-card{padding:2rem 1.5rem;border-radius:12px;background:#FCFAF7;border:1px solid rgba(0,0,0,0.05)}
+.feature-card:hover{background:#F7F4EE}
 .feature-card:focus-within{outline:2px solid #1B5E3C;outline-offset:4px;border-radius:12px}
 .feature-icon{width:40px;height:40px;border-radius:8px;background:rgba(27,94,60,0.07);display:flex;align-items:center;justify-content:center;margin-bottom:1.25rem;color:#1B5E3C;flex-shrink:0}
 .feature-icon svg{width:20px;height:20px}
@@ -113,8 +105,8 @@ section{padding:6rem 0}
 
 /* ===== Clients ===== */
 .clients-grid{display:flex;flex-wrap:wrap;justify-content:center;gap:0.625rem;margin-top:1rem}
-.client-tag{padding:0.5rem 1rem;border-radius:100px;font-size:0.875rem;font-weight:500;color:#1B1F23;background:#F2EDE4;transition:transform 0.2s cubic-bezier(0.2,0,0,1),background 0.2s;cursor:default;white-space:nowrap}
-.client-tag:hover{transform:translateY(-1px);background:rgba(27,94,60,0.1);color:#1B5E3C}
+.client-tag{padding:0.5rem 1rem;border-radius:100px;font-size:0.875rem;font-weight:500;color:#1B1F23;background:#F2EDE4;cursor:default;white-space:nowrap}
+.client-tag:hover{background:rgba(27,94,60,0.1);color:#1B5E3C}
 .client-tag.primary{background:#1B5E3C;color:#fff}
 
 /* ===== CTA ===== */
@@ -127,18 +119,13 @@ section{padding:6rem 0}
 /* ===== Footer ===== */
 .footer{padding:2rem 0;border-top:1px solid rgba(0,0,0,0.06);font-size:0.8125rem;color:#888}
 .footer .container{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.75rem}
-.footer a{color:#555;text-decoration:none;transition:color 0.2s}
+.footer a{color:#555;text-decoration:none}
 .footer a:hover{color:#1B5E3C}
 .footer a:focus-visible{outline:2px solid #1B5E3C;outline-offset:4px;border-radius:4px}
 
-/* ===== Scroll Reveal ===== */
-.reveal{opacity:0;transform:translateY(24px);transition:opacity 0.6s cubic-bezier(0.2,0,0,1),transform 0.6s cubic-bezier(0.2,0,0,1)}
-.reveal.visible{opacity:1;transform:translateY(0)}
-
 /* ===== Reduced Motion ===== */
 @media(prefers-reduced-motion:reduce){
-  *,*::before,*::after{animation-duration:0.01ms !important;animation-iteration-count:1 !important;transition-duration:0.01ms !important}
-  .reveal{opacity:1;transform:none}
+  *{animation-duration:0.01ms !important;animation-iteration-count:1 !important}
 }
 
 /* ===== Focus ===== */
@@ -151,7 +138,6 @@ section{padding:6rem 0}
   <div class="container">
     <a href="/" class="nav-logo">swagger<span>-docs</span>·mcp</a>
     <a href="https://github.com/qipeijun/swagger-docs-mcp" class="nav-link" target="_blank" rel="noopener">
-      <!-- GitHub icon -->
       <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.387.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.73.083-.73 1.205.085 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.418-1.305.762-1.604-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.605-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12z"/></svg>
       GitHub
     </a>
@@ -195,7 +181,7 @@ section{padding:6rem 0}
   <!-- Features -->
   <section class="features" id="features">
     <div class="container">
-      <div class="section-header reveal">
+      <div class="section-header">
         <p class="caption">设计</p>
         <h2 class="display display-md">为 AI 查询而生</h2>
         <p>不是文档浏览工具，而是让 AI 精准、安全、实时读取 API 规范的 MCP 协议层</p>
@@ -203,54 +189,48 @@ section{padding:6rem 0}
 
       <div class="features-grid">
 
-        <div class="feature-card reveal">
+        <div class="feature-card">
           <div class="feature-icon" aria-hidden="true">
-            <!-- Live / lightning -->
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
           </div>
           <h3>实时获取</h3>
           <p>每次 Tool 调用都从线上入口重新获取文档，不依赖快照或缓存。上游失败时明确报错，不返回过期内容。</p>
         </div>
 
-        <div class="feature-card reveal">
+        <div class="feature-card">
           <div class="feature-icon" aria-hidden="true">
-            <!-- Stateless / empty page + arrow -->
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 12h8M12 8v8"/></svg>
           </div>
           <h3>无状态</h3>
           <p>不保存文档地址、不绑定工程、不记录历史。每次调用都必须显式传入 <code style="font-family:'JetBrains Mono',monospace;font-size:0.85em;background:rgba(0,0,0,0.06);padding:0.1em 0.4em;border-radius:3px">docsUrl</code>。</p>
         </div>
 
-        <div class="feature-card reveal">
+        <div class="feature-card">
           <div class="feature-icon" aria-hidden="true">
-            <!-- Read-only shield -->
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
           </div>
           <h3>安全只读</h3>
           <p>不调用业务 API、不读取外部引用、拒绝跨主机重定向。stdout 只承载 MCP 协议，不影响业务系统。</p>
         </div>
 
-        <div class="feature-card reveal">
+        <div class="feature-card">
           <div class="feature-icon" aria-hidden="true">
-            <!-- Schema tree -->
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="19" cy="19" r="2"/><path d="M12 7v3"/><path d="M7 17l5-5"/><path d="M17 17l-5-5"/></svg>
           </div>
           <h3>Schema 展开</h3>
           <p>递归展开响应字段树，标记循环引用、动态 Map、外部引用边界。同时输出 <code style="font-family:'JetBrains Mono',monospace;font-size:0.85em;background:rgba(0,0,0,0.06);padding:0.1em 0.4em;border-radius:3px">schemaTree</code> 和可检索的 <code style="font-family:'JetBrains Mono',monospace;font-size:0.85em;background:rgba(0,0,0,0.06);padding:0.1em 0.4em;border-radius:3px">flatFields</code>。</p>
         </div>
 
-        <div class="feature-card reveal">
+        <div class="feature-card">
           <div class="feature-icon" aria-hidden="true">
-            <!-- Navigation / compass -->
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
           </div>
           <h3>智能导航</h3>
           <p>识别 Knife4j 深链接，实时验证 hash 分组、分类和 operationId 线索，引导 AI 逐级定位接口，不猜测未查验的结果。</p>
         </div>
 
-        <div class="feature-card reveal">
+        <div class="feature-card">
           <div class="feature-icon" aria-hidden="true">
-            <!-- Transparency / tag -->
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
           </div>
           <h3>完全透明</h3>
@@ -264,7 +244,7 @@ section{padding:6rem 0}
   <!-- Demo -->
   <section class="demo">
     <div class="container">
-      <div class="demo-content reveal">
+      <div class="demo-content">
         <p class="caption">三步入门</p>
         <h2 class="display display-md">在对话中直接查询接口</h2>
         <ul class="demo-list">
@@ -273,7 +253,7 @@ section{padding:6rem 0}
           <li><span class="demo-check">3.</span>AI 实时获取文档，返回分类、接口详情或搜索结果</li>
         </ul>
       </div>
-      <div class="code-block reveal">
+      <div class="code-block">
         <div class="terminal-bar">
           <span class="terminal-dot"></span><span class="terminal-dot"></span><span class="terminal-dot"></span>
         </div>
@@ -298,12 +278,12 @@ section{padding:6rem 0}
   <!-- Clients -->
   <section class="features">
     <div class="container">
-      <div class="section-header reveal">
+      <div class="section-header">
         <p class="caption">兼容</p>
         <h2 class="display display-md">11 个主流 MCP 客户端</h2>
         <p>Codex、Claude Code、Gemini CLI 自动安装并核验；IDE 客户端生成配置，不写文件</p>
       </div>
-      <div class="clients-grid reveal">
+      <div class="clients-grid">
         <span class="client-tag primary">Claude Code</span>
         <span class="client-tag">OpenAI Codex</span>
         <span class="client-tag">Gemini CLI</span>
@@ -321,7 +301,7 @@ section{padding:6rem 0}
 
   <!-- CTA -->
   <section class="cta" id="install">
-    <div class="cta-content reveal">
+    <div class="cta-content">
       <p class="caption">开始</p>
       <h2 class="display display-md">一行命令接入</h2>
       <p>需要 Node.js 20+，当前版本完整支持 Swagger 2.0。</p>
@@ -349,60 +329,60 @@ section{padding:6rem 0}
 </footer>
 
 <script>
-// ===== Terminal Animation =====
+// ===== Terminal — 纯 JS 驱动，无 CSS animation/transition =====
 (function() {
-  const lines = [
-    { type: 'cmd',      text: 'npx swagger-docs-mcp setup claude', delay: 400 },
-    { type: 'success',  text: 'Claude Code 已安装并核验 swagger-docs', delay: 500 },
-    { type: 'comment',  text: '# 现在在 AI 对话中直接查询：', delay: 600 },
-    { type: 'query',    text: '列出 http://api.example.com/doc.html 的所有分类', delay: 400 },
-    { type: 'success',  text: '实时获取 5 个 API 分类，共 23 个接口', delay: 300 },
-    { type: 'success',  text: '  获取时间：2026-07-29T10:30:00Z  未使用缓存', delay: 200 },
-  ];
+  var body = document.getElementById('terminalBody');
+  if (!body) return;
 
-  const promptMap = {
+  var promptMap = {
     cmd:     { label: '$', cls: 'cmd' },
     success: { label: '',  cls: 'success' },
     comment: { label: '',  cls: 'comment' },
     query:   { label: '>', cls: 'query' },
   };
 
-  const body = document.getElementById('terminalBody');
-  if (!body) return;
-
-  let cursorEl = null;
-
-  function createCursor() {
-    cursorEl = document.createElement('span');
-    cursorEl.className = 'terminal-cursor';
-    return cursorEl;
-  }
-
-  function createLine(type, text) {
-    const pm = promptMap[type];
-    const wrapper = document.createElement('div');
+  // 创建终端行
+  function createLine(type) {
+    var pm = promptMap[type];
+    var wrapper = document.createElement('div');
     wrapper.className = 'terminal-line';
 
-    const prompt = document.createElement('span');
+    var prompt = document.createElement('span');
     prompt.className = 'terminal-prompt mono';
     prompt.textContent = pm.label;
 
-    const content = document.createElement('span');
+    var content = document.createElement('span');
     content.className = 'terminal-text mono ' + pm.cls;
 
     wrapper.appendChild(prompt);
     wrapper.appendChild(content);
     body.appendChild(wrapper);
 
-    requestAnimationFrame(function() { wrapper.classList.add('visible'); });
+    return { wrapper: wrapper, content: content, prompt: prompt };
+  }
 
-    return { wrapper: wrapper, content: content };
+  // 将行设为可见
+  function showLine(wrapper) {
+    wrapper.style.opacity = '1';
+  }
+
+  // 创建光标元素
+  function buildCursor() {
+    var cursor = document.createElement('span');
+    cursor.style.display = 'inline-block';
+    cursor.style.width = '8px';
+    cursor.style.height = '1em';
+    cursor.style.background = '#3FB950';
+    cursor.style.marginLeft = '1px';
+    cursor.style.verticalAlign = 'text-bottom';
+    return cursor;
   }
 
   function sleep(ms) {
     return new Promise(function(resolve) { setTimeout(resolve, ms); });
   }
 
+  // 逐字输出 —— 核心动效
   async function typeText(el, text, speed) {
     for (var i = 0; i < text.length; i++) {
       el.textContent += text[i];
@@ -410,87 +390,108 @@ section{padding:6rem 0}
     }
   }
 
+  // 光标闪烁（纯 JS 定时器）
+  function startCursorBlink(cursorEl) {
+    var visible = true;
+    return setInterval(function() {
+      visible = !visible;
+      cursorEl.style.visibility = visible ? 'visible' : 'hidden';
+    }, 530);
+  }
+
   async function run() {
+    // 终端初次显示
+    var terminal = document.getElementById('terminal');
+    if (terminal) terminal.style.opacity = '1';
+
     await sleep(600);
 
-    for (var i = 0; i < lines.length; i++) {
-      var line = lines[i];
+    // Line 1: 安装命令，带打字机效果
+    var line1 = createLine('cmd');
+    var cursor1 = buildCursor();
+    line1.content.appendChild(cursor1);
+    showLine(line1.wrapper);
 
-      if (i === 0) {
-        var result = createLine('cmd', '');
-        result.content.appendChild(createCursor());
-        await typeText(result.content, line.text, 35);
-        if (cursorEl) cursorEl.remove();
-        result.content.textContent = line.text;
-      } else {
-        var result2 = createLine(line.type, '');
-        await sleep(line.delay * 0.3);
-        result2.content.textContent = line.text;
-      }
+    await typeText(line1.content, 'npx swagger-docs-mcp setup claude', 35);
+    cursor1.remove();
 
-      await sleep(line.delay);
-    }
+    await sleep(400);
 
-    var last = document.createElement('div');
-    last.className = 'terminal-line';
+    // Line 2
+    var line2 = createLine('success');
+    line2.content.textContent = 'Claude Code 已安装并核验 swagger-docs';
+    showLine(line2.wrapper);
+    await sleep(500);
+
+    // Line 3
+    var line3 = createLine('comment');
+    line3.content.textContent = '# 现在在 AI 对话中直接查询：';
+    showLine(line3.wrapper);
+    await sleep(600);
+
+    // Line 4
+    var line4 = createLine('query');
+    line4.content.textContent = '列出 http://api.example.com/doc.html 的所有分类';
+    showLine(line4.wrapper);
+    await sleep(400);
+
+    // Line 5
+    var line5 = createLine('success');
+    line5.content.textContent = '实时获取 5 个 API 分类，共 23 个接口';
+    showLine(line5.wrapper);
+    await sleep(300);
+
+    // Line 6
+    var line6 = createLine('success');
+    line6.content.textContent = '  获取时间：2026-07-29T10:30:00Z  未使用缓存';
+    showLine(line6.wrapper);
+
+    // 末尾闪烁光标（纯 JS）
+    var lastWrapper = document.createElement('div');
+    lastWrapper.className = 'terminal-line';
+    lastWrapper.style.opacity = '1';
     var lp = document.createElement('span');
     lp.className = 'terminal-prompt mono';
-    lp.textContent = '';
-    last.appendChild(lp);
-    last.appendChild(createCursor());
-    body.appendChild(last);
-    requestAnimationFrame(function() { last.classList.add('visible'); });
+    lastWrapper.appendChild(lp);
+    var endCursor = buildCursor();
+    lastWrapper.appendChild(endCursor);
+    body.appendChild(lastWrapper);
+
+    startCursorBlink(endCursor);
   }
 
   run();
 })();
 
-// ===== Scroll Reveal =====
-(function() {
-  var observer = new IntersectionObserver(
-    function(entries) {
-      entries.forEach(function(entry) {
-        if (entry.isIntersecting) entry.target.classList.add('visible');
-      });
-    },
-    { threshold: 0.1, rootMargin: '0px 0px -40px 0px' }
-  );
-
-  document.querySelectorAll('.reveal').forEach(function(el) { observer.observe(el); });
-})();
-
-// ===== Nav scroll effect =====
+// ===== Nav 滚动背景（纯 JS，无 CSS transition） =====
 (function() {
   var nav = document.getElementById('nav');
   if (!nav) return;
+
+  function updateNav() {
+    if (window.scrollY > 20) {
+      nav.style.background = 'rgba(252,250,247,0.92)';
+      nav.style.backdropFilter = 'blur(8px)';
+      nav.style.webkitBackdropFilter = 'blur(8px)';
+      nav.style.boxShadow = '0 1px 0 rgba(0,0,0,0.06)';
+    } else {
+      nav.style.background = '';
+      nav.style.backdropFilter = '';
+      nav.style.webkitBackdropFilter = '';
+      nav.style.boxShadow = '';
+    }
+  }
+
   var ticking = false;
   window.addEventListener('scroll', function() {
     if (!ticking) {
       requestAnimationFrame(function() {
-        nav.classList.toggle('scrolled', window.scrollY > 20);
+        updateNav();
         ticking = false;
       });
       ticking = true;
     }
   }, { passive: true });
-})();
-
-// ===== Feature cards stagger reveal =====
-(function() {
-  var cards = document.querySelectorAll('.feature-card.reveal');
-  if (!cards.length) return;
-  var observer = new IntersectionObserver(
-    function(entries) {
-      entries.forEach(function(entry) {
-        if (entry.isIntersecting) {
-          var idx = Array.from(cards).indexOf(entry.target);
-          setTimeout(function() { entry.target.classList.add('visible'); }, idx * 80);
-        }
-      });
-    },
-    { threshold: 0.05, rootMargin: '0px 0px -40px 0px' }
-  );
-  cards.forEach(function(card) { observer.observe(card); });
 })();
 </script>
 
