@@ -5,12 +5,19 @@ import { Completeness, type InspectionEnvelope, type ToolEnvelope } from "../dom
 import { toAppError } from "../errors.js";
 import { ApiDocsService } from "../service/api-docs-service.js";
 import { readPackageVersion } from "../version.js";
+import {
+  categoriesDataOutputSchema,
+  categoryDataOutputSchema,
+  createToolOutputSchema,
+  inspectDataOutputSchema,
+  pathDataOutputSchema,
+  searchDataOutputSchema
+} from "./output-schemas.js";
 
 const docsUrlSchema = z.url({ protocol: /^https?$/ }).describe("本次要查询的 doc.html 或 Swagger JSON 完整地址");
 const groupSchema = z.string().min(1).optional().describe("多分组文档的精确分组名；只有一个分组时可省略");
 const pageSchema = z.number().int().min(1).default(1).describe("页码，从 1 开始");
 const pageSizeSchema = z.number().int().min(1).max(100).default(20).describe("每页数量，最大 100");
-
 function successResult<T>(envelope: ToolEnvelope<T> | InspectionEnvelope): CallToolResult {
   return {
     content: [{
@@ -33,6 +40,7 @@ function errorResult(error: unknown, requestedUrl?: string): CallToolResult {
       cacheUsed: false
     },
     sourceNotice,
+    data: {},
     error: {
       code: appError.code,
       stage: appError.stage,
@@ -52,6 +60,7 @@ function errorResult(error: unknown, requestedUrl?: string): CallToolResult {
   };
 }
 
+/** 创建无状态、只读的 MCP Server；可注入 Service 以便测试或扩展文档解析能力。 */
 export function createMcpServer(service = new ApiDocsService()): McpServer {
   const server = new McpServer({
     name: "swagger-docs-mcp",
@@ -74,6 +83,7 @@ export function createMcpServer(service = new ApiDocsService()): McpServer {
       page: pageSchema,
       pageSize: pageSizeSchema
     }),
+    outputSchema: createToolOutputSchema(inspectDataOutputSchema),
     annotations
   }, async ({ docsUrl, page, pageSize }) => {
     try {
@@ -92,6 +102,7 @@ export function createMcpServer(service = new ApiDocsService()): McpServer {
       page: pageSchema,
       pageSize: pageSizeSchema
     }),
+    outputSchema: createToolOutputSchema(categoriesDataOutputSchema),
     annotations
   }, async ({ docsUrl, group, page, pageSize }) => {
     try {
@@ -112,6 +123,7 @@ export function createMcpServer(service = new ApiDocsService()): McpServer {
       page: pageSchema,
       pageSize: pageSizeSchema
     }),
+    outputSchema: createToolOutputSchema(categoryDataOutputSchema),
     annotations
   }, async ({ docsUrl, group, category, detailLevel, page, pageSize }) => {
     try {
@@ -137,6 +149,7 @@ export function createMcpServer(service = new ApiDocsService()): McpServer {
       path: z.string().startsWith("/").describe("Swagger paths 中的精确接口路径"),
       method: z.string().min(1).optional().describe("HTTP Method；同一路径有多个方法时必须提供")
     }),
+    outputSchema: createToolOutputSchema(pathDataOutputSchema),
     annotations
   }, async ({ docsUrl, group, path, method }) => {
     try {
@@ -161,6 +174,7 @@ export function createMcpServer(service = new ApiDocsService()): McpServer {
       page: pageSchema,
       pageSize: pageSizeSchema
     }),
+    outputSchema: createToolOutputSchema(searchDataOutputSchema),
     annotations
   }, async ({ docsUrl, group, keyword, page, pageSize }) => {
     try {

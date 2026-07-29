@@ -33,6 +33,19 @@ interface AnalysisContext {
 
 const MAX_SCHEMA_DEPTH = 32;
 const HTTP_METHOD_SET = new Set<string>(HTTP_METHODS);
+const PARAMETER_LOCATIONS = new Set<ApiParameter["location"]>([
+  "path", "query", "header", "formData", "body"
+]);
+
+interface ParameterCollection {
+  parameters: ApiParameter[];
+  warnings: string[];
+}
+
+interface ReferenceResolution {
+  value?: JsonObject;
+  warnings: string[];
+}
 
 function asObject(value: unknown): JsonObject | undefined {
   return typeof value === "object" && value !== null && !Array.isArray(value)
@@ -457,11 +470,26 @@ class Swagger2Document implements ApiDocument {
       throw new AppError(ErrorCode.METHOD_NOT_FOUND, ErrorStage.QUERY_DOCUMENT, `路径 ${path} 不存在 ${method} 方法`);
     }
 
-    const parameters = this.collectParameters(stored.pathItem, stored.operation);
+    const parameterCollection = this.collectParameters(stored.pathItem, stored.operation);
     const responsesObject = asObject(stored.operation.responses) ?? {};
     const responses = Object.entries(responsesObject)
       .sort(([left], [right]) => compareStatusCode(left, right))
       .map(([statusCode, responseValue]) => this.createResponse(statusCode, responseValue));
+
+    const partialParameterSchemas = parameterCollection.parameters
+      .filter((parameter) => parameter.schema?.completeness === Completeness.PARTIAL);
+    const partialResponses = responses
+      .filter((response) => response.completeness === Completeness.PARTIAL);
+
+    const warnings = [
+      ...parameterCollection.warnings,
+      ...(Object.keys(responsesObject).length === 0 ? ["接口未声明任何响应"] : []),
+      ...parameterCollection.parameters.flatMap((parameter) => parameter.schema?.warnings ?? []),
+      ...responses.flatMap((response) => response.warnings),
+      ...(partialParameterSchemas.length > 0 ? ["请求参数 Schema 存在无法完整展开的解析边界"] : []),
+      ...(partialResponses.length > 0 ? ["响应 Schema 存在无法完整展开的解析边界"] : [])
+    ];
+    const uniqueWarnings = [...new Set(warnings)];
 
     return {
       ...stored.summary,
@@ -471,8 +499,10 @@ class Swagger2Document implements ApiDocument {
       produces: asStringArray(stored.operation.produces).length
         ? asStringArray(stored.operation.produces)
         : asStringArray(this.root.produces),
-      parameters,
-      responses
+      parameters: parameterCollection.parameters,
+      responses,
+      warnings: uniqueWarnings,
+      completeness: uniqueWarnings.length > 0 ? Completeness.PARTIAL : Completeness.COMPLETE
     };
   }
 
@@ -503,22 +533,33 @@ class Swagger2Document implements ApiDocument {
     return operations.sort((left, right) => left.path.localeCompare(right.path) || left.method.localeCompare(right.method));
   }
 
-  private collectParameters(pathItem: JsonObject, operation: JsonObject): ApiParameter[] {
+  private collectParameters(pathItem: JsonObject, operation: JsonObject): ParameterCollection {
     const combined = [
       ...(Array.isArray(pathItem.parameters) ? pathItem.parameters : []),
       ...(Array.isArray(operation.parameters) ? operation.parameters : [])
     ];
     const deduplicated = new Map<string, JsonObject>();
+    const warnings: string[] = [];
     for (const value of combined) {
       const resolved = this.resolveParameter(value);
-      if (!resolved) continue;
-      const key = `${asString(resolved.in)}:${asString(resolved.name)}`;
-      deduplicated.set(key, resolved);
+      warnings.push(...resolved.warnings);
+      if (!resolved.value) continue;
+      const name = asString(resolved.value.name);
+      const location = asString(resolved.value.in);
+      if (!name || !PARAMETER_LOCATIONS.has(location as ApiParameter["location"])) {
+        warnings.push(`忽略缺少有效 name 或 in 的参数声明${name ? `：${name}` : ""}`);
+        continue;
+      }
+      const key = `${location}:${name}`;
+      deduplicated.set(key, resolved.value);
     }
 
-    return [...deduplicated.values()].map((parameter) => {
+    const parameters = [...deduplicated.values()].map((parameter) => {
       const location = asString(parameter.in) as ApiParameter["location"];
       const schema = asObject(parameter.schema);
+      if (location === "body" && Object.hasOwn(parameter, "schema") && !schema) {
+        warnings.push(`请求体参数 ${asString(parameter.name, "body")} 的 Schema 不是有效对象`);
+      }
       const type = location === "body"
         ? this.describeSchemaType(schema)
         : asString(parameter.type, "unknown");
@@ -526,7 +567,7 @@ class Swagger2Document implements ApiDocument {
       const enumValues = asUnknownArray(parameter.enum);
       const schemaAnalysis = schema ? this.analyzer.analyze(schema, asString(parameter.name, "body")) : undefined;
       return {
-        name: asString(parameter.name, "未命名参数"),
+        name: asString(parameter.name),
         location,
         required: parameter.required === true,
         type,
@@ -538,39 +579,59 @@ class Swagger2Document implements ApiDocument {
         ...(schemaAnalysis ? { schema: schemaAnalysis } : {})
       };
     });
+    return { parameters, warnings: [...new Set(warnings)] };
   }
 
-  private resolveParameter(value: unknown): JsonObject | undefined {
+  private resolveParameter(value: unknown): ReferenceResolution {
     const parameter = asObject(value);
-    if (!parameter) return undefined;
+    if (!parameter) return { warnings: ["忽略了非对象格式的参数声明"] };
     const ref = asString(parameter.$ref);
-    if (!ref) return parameter;
+    if (!ref) return { value: parameter, warnings: [] };
     const prefix = "#/parameters/";
-    if (!ref.startsWith(prefix)) return parameter;
+    if (!ref.startsWith(prefix)) {
+      return { warnings: [`参数使用了不支持的外部引用：${ref}`] };
+    }
     const name = ref.slice(prefix.length).replaceAll("~1", "/").replaceAll("~0", "~");
-    return asObject(asObject(this.root.parameters)?.[name]) ?? parameter;
+    const target = asObject(asObject(this.root.parameters)?.[name]);
+    return target
+      ? { value: target, warnings: [] }
+      : { warnings: [`参数引用不存在：${name}`] };
   }
 
   private createResponse(statusCode: string, responseValue: unknown): ApiResponseDocumentation {
-    const response = this.resolveResponse(responseValue);
+    const resolved = this.resolveResponse(responseValue);
+    const response = resolved.value ?? {};
     const schema = asObject(response.schema);
     const analysis = this.analyzer.analyze(schema, "response");
     const schemaName = schema ? this.describeSchemaName(schema) : undefined;
+    const invalidSchemaWarnings = Object.hasOwn(response, "schema") && !schema
+      ? ["响应 Schema 不是有效对象"]
+      : [];
+    const warnings = [...new Set([...resolved.warnings, ...invalidSchemaWarnings, ...analysis.warnings])];
     return {
       statusCode,
       description: missingDescription(response.description),
       ...(schemaName ? { schemaName } : {}),
-      ...analysis
+      ...analysis,
+      warnings,
+      completeness: warnings.length > 0 ? Completeness.PARTIAL : analysis.completeness
     };
   }
 
-  private resolveResponse(value: unknown): JsonObject {
-    const response = asObject(value) ?? {};
+  private resolveResponse(value: unknown): ReferenceResolution {
+    const response = asObject(value);
+    if (!response) return { warnings: ["响应声明不是有效对象"] };
     const ref = asString(response.$ref);
     const prefix = "#/responses/";
-    if (!ref?.startsWith(prefix)) return response;
+    if (!ref) return { value: response, warnings: [] };
+    if (!ref.startsWith(prefix)) {
+      return { warnings: [`响应使用了不支持的外部引用：${ref}`] };
+    }
     const name = ref.slice(prefix.length).replaceAll("~1", "/").replaceAll("~0", "~");
-    return asObject(asObject(this.root.responses)?.[name]) ?? response;
+    const target = asObject(asObject(this.root.responses)?.[name]);
+    return target
+      ? { value: target, warnings: [] }
+      : { warnings: [`响应引用不存在：${name}`] };
   }
 
   private describeSchemaName(schema: JsonObject): string | undefined {
@@ -604,7 +665,7 @@ export class Swagger2Parser implements ApiSpecParser {
         ErrorCode.UNSUPPORTED_SPEC_VERSION,
         ErrorStage.PARSE_SPEC,
         openApiVersion
-          ? `v1 暂不支持 OpenAPI ${openApiVersion}`
+          ? `当前版本暂不支持 OpenAPI ${openApiVersion}`
           : "文档不是有效的 Swagger 2.0 规范"
       );
     }

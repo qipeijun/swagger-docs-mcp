@@ -13,9 +13,12 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
 body{font-family:Inter,-apple-system,BlinkMacSystemFont,sans-serif;font-size:16px;line-height:1.6;color:#1B1F23;background:#FCFAF7;overflow-x:hidden}
+.skip-link{position:fixed;top:0.75rem;left:0.75rem;z-index:1000;padding:0.625rem 0.875rem;background:#fff;color:#1B5E3C;border:2px solid #1B5E3C;border-radius:4px;transform:translateY(-160%)}
+.skip-link:focus{transform:translateY(0)}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 
 /* ===== Typography ===== */
-.display{font-family:Fraunces,Georgia,serif;font-weight:600;letter-spacing:-0.02em;line-height:1.15}
+.display{font-family:Fraunces,Georgia,serif;font-weight:600;letter-spacing:0;line-height:1.15}
 .display-lg{font-size:clamp(2.5rem,5vw,4rem)}
 .display-md{font-size:clamp(1.8rem,3.5vw,2.5rem)}
 .display-sm{font-size:clamp(1.3rem,2vw,1.6rem)}
@@ -30,7 +33,7 @@ section{padding:6rem 0}
 /* ===== Nav ===== */
 .nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1rem 0}
 .nav .container{display:flex;align-items:center;justify-content:space-between}
-.nav-logo{font-family:Fraunces,Georgia,serif;font-weight:700;font-size:1.2rem;color:#1B1F23;text-decoration:none;letter-spacing:-0.01em}
+.nav-logo{font-family:Fraunces,Georgia,serif;font-weight:700;font-size:1.2rem;color:#1B1F23;text-decoration:none;letter-spacing:0}
 .nav-logo span{color:#1B5E3C}
 .nav-link{font-size:0.875rem;color:#555;text-decoration:none;font-weight:500;padding:0.5rem 0;display:inline-flex;align-items:center;gap:0.375rem}
 .nav-link:hover{color:#1B5E3C}
@@ -48,32 +51,32 @@ section{padding:6rem 0}
 
 /* ===== Hero ===== */
 .hero{padding:8rem 0 5rem;position:relative;overflow:hidden}
-.hero .container{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center;position:relative;z-index:1}
-@media(max-width:768px){.hero .container{grid-template-columns:1fr;gap:2.5rem}}
-.hero-content{display:flex;flex-direction:column;gap:1.5rem}
+.hero .container{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:4rem;align-items:center;position:relative;z-index:1}
+@media(max-width:768px){.hero{padding:5rem 0 1.5rem}.hero .container{grid-template-columns:1fr;gap:1rem}.hero + .features{padding-top:1.5rem}}
+.hero-content{display:flex;flex-direction:column;gap:1.5rem;min-width:0}
 .hero-eyebrow{display:inline-flex;align-items:center;gap:0.5rem;font-size:0.8125rem;font-weight:500;color:#1B5E3C;width:fit-content;letter-spacing:0.02em}
 .hero-title .highlight{color:#1B5E3C}
 .hero-desc{font-size:1.125rem;color:#555;max-width:28rem;line-height:1.7}
 .hero-actions{display:flex;gap:0.75rem;flex-wrap:wrap;margin-top:0.5rem}
 
 /* Terminal */
-.terminal-wrapper{position:relative}
-.terminal{background:#1B1F23;border-radius:12px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.12),0 0 0 1px rgba(0,0,0,0.04)}
+.terminal-wrapper{position:relative;min-width:0;max-width:100%}
+.terminal{background:#1B1F23;border-radius:8px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.12),0 0 0 1px rgba(0,0,0,0.04)}
 .terminal-bar{display:flex;align-items:center;gap:0.5rem;padding:0.75rem 1rem;background:#2A2E33;border-bottom:1px solid rgba(255,255,255,0.06)}
 .terminal-dot{width:10px;height:10px;border-radius:50%}
 .terminal-dot:nth-child(1){background:#FF5F57}
 .terminal-dot:nth-child(2){background:#FFBD2E}
 .terminal-dot:nth-child(3){background:#28CA41}
 .terminal-body{padding:1.25rem 1.25rem;min-height:260px}
-.terminal-line{display:flex;align-items:flex-start;gap:0.75rem;margin-bottom:0.5rem;min-height:1.7em;opacity:0}
+.terminal-line{display:flex;align-items:flex-start;gap:0.75rem;margin-bottom:0.5rem;min-width:0;min-height:1.7em;opacity:0}
 .terminal-prompt{color:#8B949E;flex-shrink:0;user-select:none}
-.terminal-text{white-space:nowrap;overflow:hidden;line-height:1.7}
+.terminal-text{min-width:0;max-width:100%;white-space:nowrap;overflow:hidden;line-height:1.7}
 .terminal-text.cmd{color:#E6EDF3}
 .terminal-text.success{color:#3FB950}
 .terminal-text.comment{color:#8B949E;font-style:italic}
 .terminal-text.query{color:#79C0FF}
 
-@media(max-width:768px){.terminal-body{min-height:220px;padding:1rem}.terminal-prompt,.terminal-text{font-size:0.75rem}}
+@media(max-width:768px){.terminal-body{min-height:220px;padding:1rem}.terminal-prompt,.terminal-text{font-size:0.75rem}.terminal-text{white-space:normal;overflow-wrap:anywhere}}
 
 /* ===== Section Header ===== */
 .section-header{text-align:center;margin-bottom:4rem;display:flex;flex-direction:column;gap:0.75rem}
@@ -83,9 +86,9 @@ section{padding:6rem 0}
 .features{background:#fff;border-top:1px solid rgba(0,0,0,0.04);border-bottom:1px solid rgba(0,0,0,0.04)}
 .features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2rem}
 @media(max-width:768px){.features-grid{grid-template-columns:1fr;gap:1.5rem}}
-.feature-card{padding:2rem 1.5rem;border-radius:12px;background:#FCFAF7;border:1px solid rgba(0,0,0,0.05)}
+.feature-card{padding:2rem 1.5rem;border-radius:8px;background:#FCFAF7;border:1px solid rgba(0,0,0,0.05)}
 .feature-card:hover{background:#F7F4EE}
-.feature-card:focus-within{outline:2px solid #1B5E3C;outline-offset:4px;border-radius:12px}
+.feature-card:focus-within{outline:2px solid #1B5E3C;outline-offset:4px;border-radius:8px}
 .feature-icon{width:40px;height:40px;border-radius:8px;background:rgba(27,94,60,0.07);display:flex;align-items:center;justify-content:center;margin-bottom:1.25rem;color:#1B5E3C;flex-shrink:0}
 .feature-icon svg{width:20px;height:20px}
 .feature-card h3{font-family:Fraunces,Georgia,serif;font-size:1.15rem;font-weight:600;margin-bottom:0.5rem;color:#1B1F23}
@@ -98,7 +101,7 @@ section{padding:6rem 0}
 .demo-list{list-style:none;display:flex;flex-direction:column;gap:0.75rem;margin-top:0.5rem}
 .demo-list li{display:flex;align-items:flex-start;gap:0.75rem;font-size:0.9375rem;color:#444;line-height:1.6}
 .demo-check{color:#1B5E3C;font-weight:700;flex-shrink:0;margin-top:0.125rem;font-variant-numeric:tabular-nums}
-.code-block{background:#1B1F23;border-radius:12px;overflow:hidden;box-shadow:0 16px 48px rgba(0,0,0,0.1)}
+.code-block{background:#1B1F23;border-radius:8px;overflow:hidden;box-shadow:0 16px 48px rgba(0,0,0,0.1)}
 .code-block .terminal-bar{padding:0.625rem 1rem}
 .code-block .terminal-body{padding:1.5rem;min-height:unset}
 .code-block .terminal-body pre{margin:0;color:#E6EDF3;font-family:"JetBrains Mono",Menlo,monospace;font-size:0.8125rem;line-height:1.8;white-space:pre-wrap;word-break:break-all}
@@ -112,8 +115,8 @@ section{padding:6rem 0}
 /* ===== CTA ===== */
 .cta{text-align:center;padding:7rem 0}
 .cta-content{max-width:36rem;margin:0 auto;display:flex;flex-direction:column;align-items:center;gap:1.25rem}
-.cta-copy{display:inline-flex;align-items:center;gap:0.5rem;padding:0.75rem 1.25rem;background:#1B1F23;color:#E6EDF3;border-radius:8px;font-family:"JetBrains Mono",Menlo,monospace;font-size:0.875rem;cursor:text;user-select:all;-webkit-user-select:all}
-.cta-copy code{color:#3FB950;font-weight:500;font-size:0.875rem}
+.cta-copy{display:inline-flex;align-items:flex-start;gap:0.5rem;max-width:calc(100% - 2rem);padding:0.75rem 1.25rem;background:#1B1F23;color:#E6EDF3;border-radius:8px;font-family:"JetBrains Mono",Menlo,monospace;font-size:0.875rem;text-align:left;cursor:text;user-select:all;-webkit-user-select:all}
+.cta-copy code{min-width:0;color:#3FB950;font-weight:500;font-size:0.875rem;white-space:normal;overflow-wrap:anywhere}
 .cta p{color:#555;font-size:1.0625rem;line-height:1.65}
 
 /* ===== Footer ===== */
@@ -125,6 +128,7 @@ section{padding:6rem 0}
 
 /* ===== Reduced Motion ===== */
 @media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
   *{animation-duration:0.01ms !important;animation-iteration-count:1 !important}
 }
 
@@ -134,29 +138,31 @@ section{padding:6rem 0}
 </head>
 <body>
 
+<a class="skip-link" href="#main-content">跳到主要内容</a>
+
 <nav class="nav" id="nav">
   <div class="container">
-    <a href="/" class="nav-logo">swagger<span>-docs</span>·mcp</a>
+    <a href="./" class="nav-logo" aria-label="swagger-docs-mcp 首页">swagger<span>-docs</span>·mcp</a>
     <a href="https://github.com/qipeijun/swagger-docs-mcp" class="nav-link" target="_blank" rel="noopener">
-      <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.387.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.73.083-.73 1.205.085 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.418-1.305.762-1.604-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.605-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12z"/></svg>
+      <svg aria-hidden="true" width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.387.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.73.083-.73 1.205.085 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.418-1.305.762-1.604-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.605-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12z"/></svg>
       GitHub
     </a>
   </div>
 </nav>
 
-<main>
+<main id="main-content">
   <!-- Hero -->
   <section class="hero">
     <div class="container">
       <div class="hero-content">
         <div class="hero-eyebrow">
-          AI 编程助手 &thinsp;×&thinsp; Swagger 文档
+          npm 预发布 &thinsp;·&thinsp; AI 编程助手 &thinsp;×&thinsp; Swagger 文档
         </div>
         <h1 class="display display-lg hero-title">
           让 AI <span class="highlight">读懂</span>你的 API 文档
         </h1>
         <p class="hero-desc">
-          将 Swagger 文档实时接入 AI 编程助手。每次查询都从线上获取最新结果，不缓存、不保存、不绑定工程。
+          将 Swagger 文档实时接入 AI 编程助手。每次查询都从目标地址获取最新结果，不缓存、不保存、不绑定工程。
         </p>
         <div class="hero-actions">
           <a href="#install" class="btn btn-primary btn-lg">快速开始</a>
@@ -165,7 +171,8 @@ section{padding:6rem 0}
       </div>
 
       <div class="terminal-wrapper">
-        <div class="terminal" id="terminal">
+        <p class="sr-only">发布后流程演示：运行 npx 安装后，在 AI 对话中提供文档地址和查询目标，即可实时返回接口分类和来源信息。当前 npm 包尚未发布。</p>
+        <div class="terminal" id="terminal" aria-hidden="true">
           <div class="terminal-bar">
             <span class="terminal-dot"></span>
             <span class="terminal-dot"></span>
@@ -194,7 +201,7 @@ section{padding:6rem 0}
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
           </div>
           <h3>实时获取</h3>
-          <p>每次 Tool 调用都从线上入口重新获取文档，不依赖快照或缓存。上游失败时明确报错，不返回过期内容。</p>
+          <p>每次 Tool 调用都从目标入口重新获取文档，不依赖快照或缓存。上游失败时明确报错，不返回过期内容。</p>
         </div>
 
         <div class="feature-card">
@@ -248,7 +255,7 @@ section{padding:6rem 0}
         <p class="caption">三步入门</p>
         <h2 class="display display-md">在对话中直接查询接口</h2>
         <ul class="demo-list">
-          <li><span class="demo-check">1.</span>运行 <code style="font-family:'JetBrains Mono',monospace;font-size:0.9em;background:rgba(0,0,0,0.05);padding:0.15em 0.5em;border-radius:4px">setup claude</code> 安装到 MCP 客户端</li>
+          <li><span class="demo-check">1.</span>npm 首次发布后，运行 <code style="font-family:'JetBrains Mono',monospace;font-size:0.9em;background:rgba(0,0,0,0.05);padding:0.15em 0.5em;border-radius:4px">setup claude</code> 接入 MCP 客户端</li>
           <li><span class="demo-check">2.</span>在 AI 对话中提供 <code style="font-family:'JetBrains Mono',monospace;font-size:0.9em;background:rgba(0,0,0,0.05);padding:0.15em 0.5em;border-radius:4px">doc.html</code> 地址和查询意图</li>
           <li><span class="demo-check">3.</span>AI 实时获取文档，返回分类、接口详情或搜索结果</li>
         </ul>
@@ -281,7 +288,7 @@ section{padding:6rem 0}
       <div class="section-header">
         <p class="caption">兼容</p>
         <h2 class="display display-md">11 个主流 MCP 客户端</h2>
-        <p>Codex、Claude Code、Gemini CLI 自动安装并核验；IDE 客户端生成配置，不写文件</p>
+        <p>CLI 已实现 Codex、Claude Code、Gemini CLI 自动写入与启动命令一致性核验；IDE 客户端生成配置，不写文件</p>
       </div>
       <div class="clients-grid">
         <span class="client-tag primary">Claude Code</span>
@@ -302,16 +309,15 @@ section{padding:6rem 0}
   <!-- CTA -->
   <section class="cta" id="install">
     <div class="cta-content">
-      <p class="caption">开始</p>
-      <h2 class="display display-md">一行命令接入</h2>
-      <p>需要 Node.js 20+，当前版本完整支持 Swagger 2.0。</p>
+      <p class="caption">预发布</p>
+      <h2 class="display display-md">首次发布后，一行命令接入</h2>
+      <p>当前尚未发布到 npm Registry，以下命令暂不可用。发布后需要 Node.js 20+。</p>
       <div class="cta-copy">
         <span style="color:#8B949E">$</span>
-        <code>npx swagger-docs-mcp setup claude</code>
+        <code>npx --yes swagger-docs-mcp@latest setup claude</code>
       </div>
       <div style="display:flex;gap:0.75rem;flex-wrap:wrap;justify-content:center;margin-top:0.5rem">
         <a href="https://github.com/qipeijun/swagger-docs-mcp" class="btn btn-primary btn-lg" target="_blank" rel="noopener">GitHub</a>
-        <a href="https://www.npmjs.com/package/swagger-docs-mcp" class="btn btn-outline btn-lg" target="_blank" rel="noopener">npm</a>
       </div>
     </div>
   </section>
@@ -322,8 +328,6 @@ section{padding:6rem 0}
     <span>MIT License · swagger-docs-mcp</span>
     <span>
       <a href="https://github.com/qipeijun/swagger-docs-mcp" target="_blank" rel="noopener">GitHub</a>
-      &nbsp;·&nbsp;
-      <a href="https://www.npmjs.com/package/swagger-docs-mcp" target="_blank" rel="noopener">npm</a>
     </span>
   </div>
 </footer>
@@ -333,6 +337,7 @@ section{padding:6rem 0}
 (function() {
   var body = document.getElementById('terminalBody');
   if (!body) return;
+  var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   var promptMap = {
     cmd:     { label: '$', cls: 'cmd' },
@@ -399,12 +404,38 @@ section{padding:6rem 0}
     }, 530);
   }
 
+  function renderStatic() {
+    [
+      ['comment', '# npm 首次发布后可用；当前为预发布演示'],
+      ['cmd', 'npx --yes swagger-docs-mcp@latest setup claude'],
+      ['success', 'Claude Code 配置已写入并通过启动命令一致性核验'],
+      ['comment', '# 现在在 AI 对话中直接查询：'],
+      ['query', '列出 http://api.example.com/doc.html 的所有分类'],
+      ['success', '实时获取 5 个 API 分类，共 23 个接口'],
+      ['success', '获取时间：实时返回  未使用缓存']
+    ].forEach(function(item) {
+      var line = createLine(item[0]);
+      line.content.textContent = item[1];
+      showLine(line.wrapper);
+    });
+  }
+
   async function run() {
     // 终端初次显示
     var terminal = document.getElementById('terminal');
     if (terminal) terminal.style.opacity = '1';
 
+    if (reduceMotion) {
+      renderStatic();
+      return;
+    }
+
     await sleep(600);
+
+    var notice = createLine('comment');
+    notice.content.textContent = '# npm 首次发布后可用；当前为预发布演示';
+    showLine(notice.wrapper);
+    await sleep(500);
 
     // Line 1: 安装命令，带打字机效果
     var line1 = createLine('cmd');
@@ -412,14 +443,14 @@ section{padding:6rem 0}
     line1.content.appendChild(cursor1);
     showLine(line1.wrapper);
 
-    await typeText(line1.content, 'npx swagger-docs-mcp setup claude', 35);
+    await typeText(line1.content, 'npx --yes swagger-docs-mcp@latest setup claude', 35);
     cursor1.remove();
 
     await sleep(400);
 
     // Line 2
     var line2 = createLine('success');
-    line2.content.textContent = 'Claude Code 已安装并核验 swagger-docs';
+    line2.content.textContent = 'Claude Code 配置已写入并通过启动命令一致性核验';
     showLine(line2.wrapper);
     await sleep(500);
 
@@ -443,7 +474,7 @@ section{padding:6rem 0}
 
     // Line 6
     var line6 = createLine('success');
-    line6.content.textContent = '  获取时间：2026-07-29T10:30:00Z  未使用缓存';
+    line6.content.textContent = '  获取时间：实时返回  未使用缓存';
     showLine(line6.wrapper);
 
     // 末尾闪烁光标（纯 JS）

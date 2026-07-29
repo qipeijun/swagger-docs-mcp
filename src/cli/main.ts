@@ -18,19 +18,111 @@ function printHelp(): void {
   swagger-docs-mcp serve                   启动 stdio MCP 服务
   swagger-docs-mcp doctor [docsUrl] [--group <name>]
   swagger-docs-mcp setup list
-  swagger-docs-mcp setup <client> [--replace] [--local]
+  swagger-docs-mcp setup <client> [--local]
+  swagger-docs-mcp upgrade <client> [--local]
   swagger-docs-mcp remove <client> [--local]
   swagger-docs-mcp --version
   swagger-docs-mcp --help
 
 说明：
   setup 只安装或生成 MCP 启动配置，不保存任何 Swagger 文档地址。
-  Codex、Claude Code、Gemini CLI 自动安装；其他客户端输出可粘贴 JSON。`);
+  Codex、Claude Code、Gemini CLI 自动写入并核验启动命令；其他客户端输出可粘贴 JSON。
+  upgrade 仅检查旧版本配置归属；无法保证完整回滚时会停止并要求手动升级。`);
 }
 
-function optionValue(args: string[], name: string): string | undefined {
-  const index = args.indexOf(name);
-  return index >= 0 ? args[index + 1] : undefined;
+export type ParsedCliCommand =
+  | { command: "serve" }
+  | { command: "help" }
+  | { command: "version" }
+  | { command: "doctor"; docsUrl?: string; group?: string }
+  | { command: "setup-list" }
+  | { command: "setup"; client: string; local: boolean }
+  | { command: "upgrade"; client: string; local: boolean }
+  | { command: "remove"; client: string; local: boolean };
+
+function invalidArgument(message: string): never {
+  throw new AppError(ErrorCode.INVALID_CLI_ARGUMENT, ErrorStage.CLIENT_SETUP, message);
+}
+
+function parseClientFlags(args: string[]): {
+  client: string;
+  local: boolean;
+} {
+  const positionals: string[] = [];
+  const seen = new Set<string>();
+  for (const argument of args) {
+    if (!argument.startsWith("-")) {
+      positionals.push(argument);
+      continue;
+    }
+    if (argument !== "--local") {
+      invalidArgument(`未知选项：${argument}`);
+    }
+    if (seen.has(argument)) invalidArgument(`选项不能重复：${argument}`);
+    seen.add(argument);
+  }
+  if (positionals.length !== 1) invalidArgument("必须且只能指定一个客户端");
+  return {
+    client: positionals[0]!,
+    local: seen.has("--local")
+  };
+}
+
+/** 严格解析 CLI 参数；未知选项、重复选项和多余位置参数都会立即失败。 */
+export function parseCliArguments(args: string[]): ParsedCliCommand {
+  const command = args[0];
+  if (!command) return { command: "serve" };
+  if (command === "serve") {
+    if (args.length !== 1) invalidArgument("serve 不接受额外参数");
+    return { command: "serve" };
+  }
+  if (command === "--help" || command === "-h" || command === "help") {
+    if (args.length !== 1) invalidArgument("help 不接受额外参数");
+    return { command: "help" };
+  }
+  if (command === "--version" || command === "-v") {
+    if (args.length !== 1) invalidArgument("version 不接受额外参数");
+    return { command: "version" };
+  }
+  if (command === "doctor") {
+    let docsUrl: string | undefined;
+    let group: string | undefined;
+    for (let index = 1; index < args.length; index += 1) {
+      const argument = args[index]!;
+      if (argument === "--group") {
+        if (group !== undefined) invalidArgument("--group 不能重复");
+        const value = args[index + 1];
+        if (!value || value.startsWith("-")) invalidArgument("--group 必须提供分组名称");
+        group = value;
+        index += 1;
+      } else if (argument.startsWith("-")) {
+        invalidArgument(`未知选项：${argument}`);
+      } else if (docsUrl === undefined) {
+        docsUrl = argument;
+      } else {
+        invalidArgument(`doctor 不接受额外参数：${argument}`);
+      }
+    }
+    if (group && !docsUrl) invalidArgument("--group 必须与 docsUrl 一起使用");
+    return { command: "doctor", ...(docsUrl ? { docsUrl } : {}), ...(group ? { group } : {}) };
+  }
+  if (command === "setup") {
+    if (args[1] === "list") {
+      if (args.length !== 2) invalidArgument("setup list 不接受额外参数");
+      return { command: "setup-list" };
+    }
+    const parsed = parseClientFlags(args.slice(1));
+    return { command: "setup", ...parsed };
+  }
+  if (command === "upgrade") {
+    const parsed = parseClientFlags(args.slice(1));
+    return { command: "upgrade", client: parsed.client, local: parsed.local };
+  }
+  if (command === "remove") {
+    const parsed = parseClientFlags(args.slice(1));
+    return { command: "remove", client: parsed.client, local: parsed.local };
+  }
+  invalidArgument(`未知命令：${command}。使用 --help 查看帮助。`);
 }
 
 async function serve(): Promise<void> {
@@ -45,8 +137,7 @@ async function serve(): Promise<void> {
   process.once("SIGTERM", () => { void close(); });
 }
 
-async function doctor(args: string[]): Promise<void> {
-  const docsUrl = args[0] && !args[0].startsWith("--") ? args[0] : undefined;
+async function doctor(docsUrl?: string, group?: string): Promise<void> {
   writeLine(`swagger-docs-mcp: ${readPackageVersion()}`);
   writeLine(`Node.js: ${process.version}`);
   const majorVersion = Number(process.versions.node.split(".")[0]);
@@ -64,7 +155,6 @@ async function doctor(args: string[]): Promise<void> {
     return;
   }
 
-  const group = optionValue(args, "--group");
   const loaded = await new ApiDocsService().load(docsUrl, group);
   writeLine(loaded.sourceNotice);
   writeLine(`接口数量：${loaded.document.operations.length}`);
@@ -84,52 +174,47 @@ function parseClient(value: string | undefined): SupportedClient {
 }
 
 export async function runCli(args = process.argv.slice(2)): Promise<void> {
-  const command = args[0];
-  if (!command || command === "serve") {
+  const parsed = parseCliArguments(args);
+  if (parsed.command === "serve") {
     await serve();
     return;
   }
-  if (command === "--help" || command === "-h" || command === "help") {
+  if (parsed.command === "help") {
     printHelp();
     return;
   }
-  if (command === "--version" || command === "-v") {
+  if (parsed.command === "version") {
     writeLine(readPackageVersion());
     return;
   }
-  if (command === "doctor") {
-    await doctor(args.slice(1));
+  if (parsed.command === "doctor") {
+    await doctor(parsed.docsUrl, parsed.group);
     return;
   }
-  if (command === "setup") {
-    if (args[1] === "list") {
-      writeLine(formatClientCatalog());
-      return;
-    }
-    const client = parseClient(args[1]);
+  if (parsed.command === "setup-list") {
+    writeLine(formatClientCatalog());
+    return;
+  }
+  if (parsed.command === "setup") {
+    const client = parseClient(parsed.client);
     writeLine(setupClient(client, {
-      replace: args.includes("--replace"),
-      local: args.includes("--local")
+      local: parsed.local
     }));
     return;
   }
-  if (command === "remove") {
-    const client = parseClient(args[1]);
-    writeLine(removeClient(client, args.includes("--local")));
+  if (parsed.command === "upgrade") {
+    const client = parseClient(parsed.client);
+    writeLine(setupClient(client, {
+      local: parsed.local,
+      upgrade: true
+    }));
     return;
   }
-
-  throw new AppError(
-    ErrorCode.INVALID_CLI_ARGUMENT,
-    ErrorStage.CLIENT_SETUP,
-    `未知命令：${command}。使用 --help 查看帮助。`
-  );
+  const client = parseClient(parsed.client);
+  writeLine(removeClient(client, parsed.local));
 }
 
 export function reportCliError(error: unknown): void {
   const appError = error instanceof AppError ? error : toAppError(error);
   process.stderr.write(`[${appError.code}] ${appError.message}\n`);
-  if (appError.details) {
-    process.stderr.write(`${JSON.stringify(appError.details, null, 2)}\n`);
-  }
 }

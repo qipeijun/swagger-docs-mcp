@@ -209,7 +209,9 @@ export function createClientConfig(client: SupportedClient, launch: McpLaunchCom
 /** 输出面向用户的客户端能力清单，供 setup list 和帮助信息复用。 */
 export function formatClientCatalog(): string {
   const rows = CLIENT_DEFINITIONS.map((definition) => {
-    const mode = definition.setupMode === ClientSetupMode.AUTOMATIC ? "自动安装并核验" : "生成配置，不写文件";
+    const mode = definition.setupMode === ClientSetupMode.AUTOMATIC
+      ? "自动写入并核验启动命令一致性"
+      : "生成配置，不写文件";
     return `- ${definition.id}: ${definition.displayName}；${mode}；${definition.configLocation}`;
   });
   return ["支持的 MCP 客户端：", ...rows].join("\n");

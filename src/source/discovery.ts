@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { ApiDocumentType, NavigationNextAction } from "../domain/types.js";
 import { AppError, ErrorCode, ErrorStage } from "../errors.js";
-import { SafeHttpClient } from "./http-client.js";
+import { createSafeHttpClient, SafeHttpClient } from "./http-client.js";
 import type {
   DiscoveredDocument,
   DocumentDiscoveryAdapter,
@@ -220,7 +220,7 @@ export class SpringfoxDiscoveryAdapter implements DocumentDiscoveryAdapter {
 export class DocumentDiscoveryService {
   private readonly adapters: DocumentDiscoveryAdapter[];
 
-  constructor(private readonly httpClient = new SafeHttpClient()) {
+  constructor(private readonly httpClient = createSafeHttpClient()) {
     this.adapters = [
       new RawJsonDiscoveryAdapter(),
       new SpringfoxDiscoveryAdapter(httpClient)

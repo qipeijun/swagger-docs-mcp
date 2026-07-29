@@ -76,6 +76,19 @@ describe("MCP 协议集成", () => {
       "list_api_categories",
       "search_apis"
     ]);
+    expect(result.tools.every((tool) => tool.outputSchema?.type === "object")).toBe(true);
+    expect(result.tools.every((tool) => {
+      const required = tool.outputSchema?.required;
+      return Array.isArray(required)
+        && ["source", "sourceNotice", "data", "warnings", "completeness"]
+          .every((field) => required.includes(field));
+    })).toBe(true);
+    const schemas = Object.fromEntries(result.tools.map((tool) => [tool.name, JSON.stringify(tool.outputSchema)]));
+    expect(schemas.inspect_api_docs).toContain("nextAction");
+    expect(schemas.list_api_categories).toContain("operationCount");
+    expect(schemas.get_api_category).toContain("parameters");
+    expect(schemas.get_api_by_path).toContain("response");
+    expect(schemas.search_apis).toContain("matchedFields");
   });
 
   it("通过真实 tools/call 返回结构化来源和递归字段", async () => {

@@ -221,7 +221,7 @@ export class ApiDocsService {
       throw new AppError(
         ErrorCode.UNSUPPORTED_SPEC_VERSION,
         ErrorStage.PARSE_SPEC,
-        version === "unknown" ? "无法识别文档规范版本" : `v1 暂不支持规范版本 ${version}`,
+        version === "unknown" ? "无法识别文档规范版本" : `当前版本暂不支持规范版本 ${version}`,
         { requestedUrl: discovered.requestedUrl, details: { version } }
       );
     }
@@ -440,6 +440,7 @@ export class ApiDocsService {
   /** 汇总一次接口解析中的所有边界，让顶层 completeness 与请求体、响应体保持一致。 */
   private operationWarnings(operation: ApiOperationDocumentation): string[] {
     const warnings = [
+      ...operation.warnings,
       ...operation.responses.flatMap((response) => response.warnings),
       ...operation.parameters.flatMap((parameter) => parameter.schema?.warnings ?? [])
     ];

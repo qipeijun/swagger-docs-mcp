@@ -1,10 +1,13 @@
 import { AppError, ErrorCode, ErrorStage } from "../errors.js";
+import { readPackageVersion } from "../version.js";
 import type { FetchResult } from "./types.js";
 
 export interface SafeHttpClientOptions {
   timeoutMs?: number;
   maxResponseBytes?: number;
   maxRedirects?: number;
+  /** 精确允许访问的 HTTP(S) origin；未提供时保持兼容，允许用户明确传入的任意来源。 */
+  allowedOrigins?: readonly string[];
   fetchImpl?: typeof fetch;
 }
 
@@ -12,16 +15,59 @@ const DEFAULT_TIMEOUT_MS = 10_000;
 const DEFAULT_MAX_RESPONSE_BYTES = 20 * 1024 * 1024;
 const DEFAULT_MAX_REDIRECTS = 3;
 
+function normalizeAllowedOrigin(rawOrigin: string): string {
+    let url: URL;
+    try {
+      url = new URL(rawOrigin);
+    } catch (error) {
+      throw new AppError(ErrorCode.INVALID_CLI_ARGUMENT, ErrorStage.RUNTIME_CHECK, `来源白名单包含无效 URL：${rawOrigin}`, {
+        cause: error
+      });
+    }
+    if (
+      (url.protocol !== "http:" && url.protocol !== "https:")
+      || url.username
+      || url.password
+      || url.pathname !== "/"
+      || url.search
+      || url.hash
+    ) {
+      throw new AppError(
+        ErrorCode.INVALID_CLI_ARGUMENT,
+        ErrorStage.RUNTIME_CHECK,
+        `来源白名单必须使用纯 HTTP(S) origin：${rawOrigin}`
+      );
+    }
+    return url.origin;
+}
+
+/**
+ * 校验并规范化来源白名单。每项必须是纯 HTTP(S) origin，不能包含路径、查询或认证信息。
+ */
+export function normalizeAllowedOrigins(origins: readonly string[]): string[] {
+  return origins.map((origin) => normalizeAllowedOrigin(origin.trim()));
+}
+
+/** 读取进程来源白名单，并复用公开构造参数的同一套严格校验规则。 */
+export function readAllowedOrigins(value = process.env.SWAGGER_DOCS_ALLOWED_ORIGINS): string[] | undefined {
+  if (!value?.trim()) return undefined;
+  return normalizeAllowedOrigins(value.split(","));
+}
+
 export class SafeHttpClient {
   private readonly timeoutMs: number;
   private readonly maxResponseBytes: number;
   private readonly maxRedirects: number;
+  private readonly allowedOrigins: ReadonlySet<string> | undefined;
   private readonly fetchImpl: typeof fetch;
 
   constructor(options: SafeHttpClientOptions = {}) {
     this.timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
     this.maxResponseBytes = options.maxResponseBytes ?? DEFAULT_MAX_RESPONSE_BYTES;
     this.maxRedirects = options.maxRedirects ?? DEFAULT_MAX_REDIRECTS;
+    this.allowedOrigins = options.allowedOrigins
+      ? new Set(normalizeAllowedOrigins(options.allowedOrigins))
+      : undefined;
     this.fetchImpl = options.fetchImpl ?? fetch;
   }
 
@@ -120,8 +166,14 @@ export class SafeHttpClient {
       });
     }
     if (url.username || url.password) {
-      throw new AppError(ErrorCode.AUTHENTICATED_URL_UNSUPPORTED, stage, "v1 不支持 URL 中携带认证信息", {
+      throw new AppError(ErrorCode.AUTHENTICATED_URL_UNSUPPORTED, stage, "不支持 URL 中携带认证信息", {
         requestedUrl: this.sanitizeUrl(url)
+      });
+    }
+    if (this.allowedOrigins && !this.allowedOrigins.has(url.origin)) {
+      throw new AppError(ErrorCode.ORIGIN_NOT_ALLOWED, stage, "docsUrl 不在允许访问的来源白名单中", {
+        requestedUrl: this.sanitizeUrl(url),
+        details: { origin: url.origin }
       });
     }
     return url;
@@ -134,7 +186,7 @@ export class SafeHttpClient {
         redirect: "manual",
         headers: {
           accept: "application/json, text/html;q=0.9, */*;q=0.1",
-          "user-agent": "swagger-docs-mcp/0.1.0"
+          "user-agent": `swagger-docs-mcp/${readPackageVersion()}`
         },
         signal: AbortSignal.timeout(this.timeoutMs)
       });
@@ -197,4 +249,10 @@ export class SafeHttpClient {
     sanitized.password = "";
     return sanitized.href;
   }
+}
+
+/** 创建遵循当前进程来源白名单配置的默认 HTTP 客户端。 */
+export function createSafeHttpClient(): SafeHttpClient {
+  const allowedOrigins = readAllowedOrigins();
+  return new SafeHttpClient(allowedOrigins ? { allowedOrigins } : {});
 }

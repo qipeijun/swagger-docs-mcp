@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { ErrorCode, ErrorStage } from "../src/errors.js";
 import { ApiDocsService } from "../src/service/api-docs-service.js";
 import { DocumentDiscoveryService } from "../src/source/discovery.js";
-import { SafeHttpClient } from "../src/source/http-client.js";
+import { readAllowedOrigins, SafeHttpClient } from "../src/source/http-client.js";
 import { openApi3Fixture, swagger2Fixture } from "./fixtures/swagger2.js";
 import { sendJson, startHttpServer, type TestHttpServer } from "./helpers/http-server.js";
 
@@ -122,6 +122,32 @@ describe("文档发现与网络边界", () => {
       .rejects.toMatchObject({ code: ErrorCode.AUTHENTICATED_URL_UNSUPPORTED });
     await expect(client.get(`${server.origin}/start`, ErrorStage.FETCH_ENTRY))
       .rejects.toMatchObject({ code: ErrorCode.AUTHENTICATED_URL_UNSUPPORTED });
+  });
+
+  it("配置来源白名单后只访问精确匹配的 origin", async () => {
+    const allowed = await startHttpServer((_request, response) => sendJson(response, swagger2Fixture));
+    const blocked = await startHttpServer((_request, response) => sendJson(response, swagger2Fixture));
+    servers.push(allowed, blocked);
+    const client = new SafeHttpClient({ allowedOrigins: [allowed.origin] });
+
+    await expect(client.get(`${allowed.origin}/v2/api-docs`, ErrorStage.FETCH_ENTRY)).resolves.toMatchObject({
+      finalUrl: `${allowed.origin}/v2/api-docs`
+    });
+    await expect(client.get(`${blocked.origin}/v2/api-docs`, ErrorStage.FETCH_ENTRY)).rejects.toMatchObject({
+      code: ErrorCode.ORIGIN_NOT_ALLOWED,
+      details: { origin: blocked.origin }
+    });
+  });
+
+  it("来源白名单只接受纯 HTTP(S) origin", () => {
+    expect(readAllowedOrigins("https://api.example.com,http://127.0.0.1:8080")).toEqual([
+      "https://api.example.com",
+      "http://127.0.0.1:8080"
+    ]);
+    expect(() => readAllowedOrigins("https://api.example.com/private"))
+      .toThrowError(expect.objectContaining({ code: ErrorCode.INVALID_CLI_ARGUMENT }));
+    expect(() => new SafeHttpClient({ allowedOrigins: ["https://api.example.com/private"] }))
+      .toThrowError(expect.objectContaining({ code: ErrorCode.INVALID_CLI_ARGUMENT }));
   });
 
   it("区分超时、超大响应和无效 JSON", async () => {

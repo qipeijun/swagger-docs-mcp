@@ -21,10 +21,59 @@ describe("Swagger2Parser", () => {
   });
 
   it("如实标记动态 Map", () => {
-    const response = document.getOperation("/api/v1/maps", "GET").responses[0];
+    const operation = document.getOperation("/api/v1/maps", "GET");
+    const response = operation.responses[0];
     expect(response?.unresolvedDynamicFields[0]?.path).toBe("data{*}");
     expect(response?.flatFields.find((field) => field.path === "data{*}")?.dynamicKey).toBe(true);
     expect(response?.completeness).toBe(Completeness.PARTIAL);
+    expect(operation.completeness).toBe(Completeness.PARTIAL);
+    expect(operation.warnings.join(" ")).toContain("响应 Schema 存在无法完整展开的解析边界");
+  });
+
+  it("请求体 Schema 为动态 Map 时同步标记接口为部分完整", () => {
+    const parsed = new Swagger2Parser().parse({
+      swagger: "2.0",
+      info: { title: "动态请求体", version: "1" },
+      paths: {
+        "/dynamic-body": {
+          post: {
+            parameters: [{
+              name: "body",
+              in: "body",
+              schema: { type: "object", additionalProperties: { type: "string" } }
+            }],
+            responses: { 200: { description: "成功" } }
+          }
+        }
+      }
+    });
+
+    const operation = parsed.getOperation("/dynamic-body", "POST");
+    expect(operation.parameters[0]?.schema?.completeness).toBe(Completeness.PARTIAL);
+    expect(operation.completeness).toBe(Completeness.PARTIAL);
+    expect(operation.warnings.join(" ")).toContain("请求参数 Schema 存在无法完整展开的解析边界");
+  });
+
+  it("存在但不是对象的请求和响应 Schema 会标记为部分完整", () => {
+    const parsed = new Swagger2Parser().parse({
+      swagger: "2.0",
+      info: { title: "非法 Schema", version: "1" },
+      paths: {
+        "/invalid-schema": {
+          post: {
+            parameters: [{ name: "body", in: "body", schema: "not-an-object" }],
+            responses: { 200: { description: "成功", schema: "not-an-object" } }
+          }
+        }
+      }
+    });
+
+    const operation = parsed.getOperation("/invalid-schema", "POST");
+    expect(operation.parameters[0]?.schema).toBeUndefined();
+    expect(operation.responses[0]?.completeness).toBe(Completeness.PARTIAL);
+    expect(operation.responses[0]?.warnings).toContain("响应 Schema 不是有效对象");
+    expect(operation.completeness).toBe(Completeness.PARTIAL);
+    expect(operation.warnings).toContain("请求体参数 body 的 Schema 不是有效对象");
   });
 
   it("在循环引用处停止展开", () => {
@@ -68,5 +117,67 @@ describe("Swagger2Parser", () => {
     const response = deepDocument.getOperation("/deep", "GET").responses[0];
     expect(response?.warnings.join(" ")).toContain("最大展开深度");
     expect(response?.flatFields.some((field) => field.recursionBoundary)).toBe(true);
+  });
+
+  it("顶层参数引用无法解析时不伪造参数，并标记操作为部分完整", () => {
+    const parsed = new Swagger2Parser().parse({
+      swagger: "2.0",
+      info: { title: "引用边界", version: "1" },
+      paths: {
+        "/refs": {
+          get: {
+            parameters: [
+              { $ref: "#/parameters/Missing" },
+              { $ref: "https://example.com/parameters.json#/TraceId" }
+            ],
+            responses: { 200: { description: "成功" } }
+          }
+        }
+      }
+    });
+
+    const operation = parsed.getOperation("/refs", "GET");
+    expect(operation.parameters).toEqual([]);
+    expect(operation.warnings.join(" ")).toContain("参数引用不存在：Missing");
+    expect(operation.warnings.join(" ")).toContain("不支持的外部引用");
+    expect(operation.completeness).toBe(Completeness.PARTIAL);
+  });
+
+  it("顶层响应引用缺失或指向外部文档时保留明确边界", () => {
+    const parsed = new Swagger2Parser().parse({
+      swagger: "2.0",
+      info: { title: "响应引用边界", version: "1" },
+      paths: {
+        "/refs": {
+          get: {
+            responses: {
+              200: { $ref: "#/responses/Missing" },
+              400: { $ref: "https://example.com/responses.json#/BadRequest" }
+            }
+          }
+        }
+      }
+    });
+
+    const operation = parsed.getOperation("/refs", "GET");
+    expect(operation.responses).toEqual(expect.arrayContaining([
+      expect.objectContaining({ statusCode: "200", completeness: Completeness.PARTIAL }),
+      expect.objectContaining({ statusCode: "400", completeness: Completeness.PARTIAL })
+    ]));
+    expect(operation.warnings.join(" ")).toContain("响应引用不存在：Missing");
+    expect(operation.warnings.join(" ")).toContain("不支持的外部引用");
+  });
+
+  it("接口未声明响应时不标记为完整", () => {
+    const parsed = new Swagger2Parser().parse({
+      swagger: "2.0",
+      info: { title: "缺失响应", version: "1" },
+      paths: { "/missing": { get: {} } }
+    });
+
+    const operation = parsed.getOperation("/missing", "GET");
+    expect(operation.responses).toEqual([]);
+    expect(operation.warnings).toContain("接口未声明任何响应");
+    expect(operation.completeness).toBe(Completeness.PARTIAL);
   });
 });

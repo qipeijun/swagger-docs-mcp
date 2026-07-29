@@ -168,6 +168,8 @@ export interface ApiOperationDocumentation extends ApiOperationSummary {
   produces: string[];
   parameters: ApiParameter[];
   responses: ApiResponseDocumentation[];
+  warnings: string[];
+  completeness: Completeness;
 }
 
 export interface SchemaNode {
