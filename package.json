@@ -1,7 +1,7 @@
 {
   "name": "swagger-docs-mcp",
   "version": "0.1.1",
-  "description": "Read-only MCP server for querying live Swagger 2.0 and Knife4j API documentation",
+  "description": "Read-only MCP server for querying live Swagger 2.0 API documentation, including Knife4j / Springfox doc.html entry points",
   "type": "module",
   "main": "dist/public.js",
   "types": "dist/public.d.ts",
@@ -40,7 +40,9 @@
     "swagger",
     "swagger-2",
     "api-documentation",
-    "model-context-protocol"
+    "model-context-protocol",
+    "knife4j",
+    "springfox"
   ],
   "author": "qipeijun",
   "license": "MIT",

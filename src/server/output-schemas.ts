@@ -170,7 +170,7 @@ const errorOutputSchema = z.object({
 });
 const emptyErrorDataSchema = z.object({}).strict();
 
-/** 为具体 Tool data 契约添加统一来源、告警、完整性和错误包络。 */
+/** 为具体 Tool data 契约添加统一来源、告警、完整性和错误包装。 */
 export function createToolOutputSchema<T extends z.ZodType>(dataSchema: T) {
   return z.object({
     source: sourceOutputSchema,

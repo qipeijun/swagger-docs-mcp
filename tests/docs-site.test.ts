@@ -9,7 +9,7 @@ describe("官网发布内容", () => {
     expect(html).not.toContain('href="/" class="nav-logo"');
     expect(html).toContain("npx --yes swagger-docs-mcp@latest setup claude");
     expect(html).toContain("AI Agent &thinsp;×&thinsp; Swagger / Knife4j");
-    expect(html).toContain("需要 Node.js 20 或更高版本。以下命令将为 Claude Code 写入 MCP 配置并核验启动命令。");
+    expect(html).toContain("需要 Node.js 20 或更高版本。以 Claude Code 为例，以下命令将写入 MCP 配置并核验启动命令。");
     expect(html).toContain("# 配置 Claude Code MCP 客户端");
     expect(html).not.toContain("npm 已发布");
     expect(html).not.toContain("# 已发布到 npm，可直接运行");

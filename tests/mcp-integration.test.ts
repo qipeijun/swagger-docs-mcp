@@ -68,7 +68,7 @@ describe("MCP 协议集成", () => {
     expect(client.getInstructions()).toContain("inspect_api_docs");
     expect(client.getInstructions()).toContain("孤立 URL 应先询问");
     expect(result.tools.find((tool) => tool.name === "inspect_api_docs")?.description)
-      .toContain("不要因为消息中只有 URL 就调用");
+      .toContain("检查 doc.html");
     expect(result.tools.map((tool) => tool.name).sort()).toEqual([
       "get_api_by_path",
       "get_api_category",

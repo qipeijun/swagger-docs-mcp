@@ -27,7 +27,7 @@ describe("Swagger2Parser", () => {
     expect(response?.flatFields.find((field) => field.path === "data{*}")?.dynamicKey).toBe(true);
     expect(response?.completeness).toBe(Completeness.PARTIAL);
     expect(operation.completeness).toBe(Completeness.PARTIAL);
-    expect(operation.warnings.join(" ")).toContain("响应 Schema 存在无法完整展开的解析边界");
+    expect(operation.warnings.join(" ")).toContain("响应 Schema 存在解析边界，见子字段标记");
   });
 
   it("请求体 Schema 为动态 Map 时同步标记接口为部分完整", () => {
@@ -51,7 +51,7 @@ describe("Swagger2Parser", () => {
     const operation = parsed.getOperation("/dynamic-body", "POST");
     expect(operation.parameters[0]?.schema?.completeness).toBe(Completeness.PARTIAL);
     expect(operation.completeness).toBe(Completeness.PARTIAL);
-    expect(operation.warnings.join(" ")).toContain("请求参数 Schema 存在无法完整展开的解析边界");
+    expect(operation.warnings.join(" ")).toContain("请求参数 Schema 存在解析边界，见子字段标记");
   });
 
   it("存在但不是对象的请求和响应 Schema 会标记为部分完整", () => {
@@ -115,7 +115,7 @@ describe("Swagger2Parser", () => {
       definitions
     });
     const response = deepDocument.getOperation("/deep", "GET").responses[0];
-    expect(response?.warnings.join(" ")).toContain("最大展开深度");
+    expect(response?.warnings.join(" ")).toContain("最大递归深度");
     expect(response?.flatFields.some((field) => field.recursionBoundary)).toBe(true);
   });
 

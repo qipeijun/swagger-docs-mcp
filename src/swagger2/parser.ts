@@ -147,7 +147,7 @@ class Swagger2SchemaAnalyzer {
     depth: number
   ): SchemaNode {
     if (depth > MAX_SCHEMA_DEPTH) {
-      context.warnings.push(`字段 ${path || name} 达到最大展开深度 ${MAX_SCHEMA_DEPTH}`);
+      context.warnings.push(`字段 ${path || name} 达到最大递归深度 ${MAX_SCHEMA_DEPTH}`);
       return {
         path,
         name,
@@ -486,8 +486,8 @@ class Swagger2Document implements ApiDocument {
       ...(Object.keys(responsesObject).length === 0 ? ["接口未声明任何响应"] : []),
       ...parameterCollection.parameters.flatMap((parameter) => parameter.schema?.warnings ?? []),
       ...responses.flatMap((response) => response.warnings),
-      ...(partialParameterSchemas.length > 0 ? ["请求参数 Schema 存在无法完整展开的解析边界"] : []),
-      ...(partialResponses.length > 0 ? ["响应 Schema 存在无法完整展开的解析边界"] : [])
+      ...(partialParameterSchemas.length > 0 ? ["请求参数 Schema 存在解析边界，见子字段标记"] : []),
+      ...(partialResponses.length > 0 ? ["响应 Schema 存在解析边界，见子字段标记"] : [])
     ];
     const uniqueWarnings = [...new Set(warnings)];
 
@@ -665,7 +665,7 @@ export class Swagger2Parser implements ApiSpecParser {
         ErrorCode.UNSUPPORTED_SPEC_VERSION,
         ErrorStage.PARSE_SPEC,
         openApiVersion
-          ? `当前版本暂不支持 OpenAPI ${openApiVersion}`
+          ? `当前暂不支持 OpenAPI ${openApiVersion}`
           : "文档不是有效的 Swagger 2.0 规范"
       );
     }

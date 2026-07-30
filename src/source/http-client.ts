@@ -161,7 +161,7 @@ export class SafeHttpClient {
     }
 
     if (url.protocol !== "http:" && url.protocol !== "https:") {
-      throw new AppError(ErrorCode.INVALID_URL, stage, "docsUrl 仅支持 http 或 https", {
+      throw new AppError(ErrorCode.INVALID_URL, stage, "docsUrl 仅支持 HTTP 或 HTTPS", {
         requestedUrl: urlValue
       });
     }

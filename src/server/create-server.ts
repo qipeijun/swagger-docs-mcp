@@ -14,7 +14,7 @@ import {
   searchDataOutputSchema
 } from "./output-schemas.js";
 
-const docsUrlSchema = z.url({ protocol: /^https?$/ }).describe("本次要查询的 doc.html 或 Swagger JSON 完整地址");
+const docsUrlSchema = z.url({ protocol: /^https?$/ }).describe("本次查询的 doc.html 或 Swagger JSON 完整地址");
 const groupSchema = z.string().min(1).optional().describe("多分组文档的精确分组名；只有一个分组时可省略");
 const pageSchema = z.number().int().min(1).default(1).describe("页码，从 1 开始");
 const pageSizeSchema = z.number().int().min(1).max(100).default(20).describe("每页数量，最大 100");
@@ -77,7 +77,7 @@ export function createMcpServer(service = new ApiDocsService()): McpServer {
 
   server.registerTool("inspect_api_docs", {
     title: "检查 Swagger 文档地址",
-    description: "在用户已明确要求查询、调试、搜索、列出或分析接口文档后，检查 doc.html、Knife4j hash 深链接或 Swagger JSON 地址。不要因为消息中只有 URL 就调用；孤立 URL 应先询问用户意图。调用后实时验证 hash 中的分组、分类和 operationId，返回候选项与 nextAction。nextAction 为 get_api_detail 时，应直接使用已验证的 group/path/method 调用 get_api_by_path。",
+    description: "检查 doc.html、Knife4j hash 深链接或 Swagger JSON 地址，实时验证 hash 中的分组、分类和 operationId 线索，返回候选项与下一步操作（nextAction）。",
     inputSchema: z.object({
       docsUrl: docsUrlSchema,
       page: pageSchema,
@@ -95,7 +95,7 @@ export function createMcpServer(service = new ApiDocsService()): McpServer {
 
   server.registerTool("list_api_categories", {
     title: "列出 Swagger 接口分类",
-    description: "实时读取指定 docsUrl，列出分类及接口数量。回答用户时必须明确保留返回中的 sourceNotice。不会调用业务 API，也不会缓存地址。",
+    description: "实时读取指定 docsUrl，列出分类及接口数量。",
     inputSchema: z.object({
       docsUrl: docsUrlSchema,
       group: groupSchema,
@@ -114,7 +114,7 @@ export function createMcpServer(service = new ApiDocsService()): McpServer {
 
   server.registerTool("get_api_category", {
     title: "查询 Swagger 接口分类",
-    description: "按精确分类名实时查询接口。summary 返回摘要，full 返回请求和递归响应 schema。回答用户时必须明确保留 sourceNotice。",
+    description: "按精确分类名实时查询接口。summary 返回摘要，full 返回请求和递归响应 Schema。",
     inputSchema: z.object({
       docsUrl: docsUrlSchema,
       group: groupSchema,
@@ -142,7 +142,7 @@ export function createMcpServer(service = new ApiDocsService()): McpServer {
 
   server.registerTool("get_api_by_path", {
     title: "按路径查询 Swagger 接口",
-    description: "按精确路径和可选 HTTP Method 实时查询完整接口文档，返回递归 schemaTree 和 flatFields。回答用户时必须明确保留 sourceNotice。",
+    description: "按精确路径和可选 HTTP Method 实时查询完整接口文档，返回递归 schemaTree 和 flatFields。",
     inputSchema: z.object({
       docsUrl: docsUrlSchema,
       group: groupSchema,
@@ -166,7 +166,7 @@ export function createMcpServer(service = new ApiDocsService()): McpServer {
 
   server.registerTool("search_apis", {
     title: "搜索 Swagger 接口",
-    description: "在指定实时 Swagger 文档中搜索路径、摘要、描述、分类和 operationId。回答用户时必须明确保留 sourceNotice。",
+    description: "在指定实时 Swagger 文档中搜索路径、摘要、描述、分类和 operationId。",
     inputSchema: z.object({
       docsUrl: docsUrlSchema,
       group: groupSchema,

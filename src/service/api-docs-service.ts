@@ -221,7 +221,7 @@ export class ApiDocsService {
       throw new AppError(
         ErrorCode.UNSUPPORTED_SPEC_VERSION,
         ErrorStage.PARSE_SPEC,
-        version === "unknown" ? "无法识别文档规范版本" : `当前版本暂不支持规范版本 ${version}`,
+        version === "unknown" ? "无法识别文档规范版本" : `当前暂不支持 ${version} 规范的文档`,
         { requestedUrl: discovered.requestedUrl, details: { version } }
       );
     }
@@ -445,10 +445,10 @@ export class ApiDocsService {
       ...operation.parameters.flatMap((parameter) => parameter.schema?.warnings ?? [])
     ];
     if (operation.responses.some((response) => response.completeness === Completeness.PARTIAL)) {
-      warnings.push("响应 schema 存在已明确标注的动态字段、递归或其他解析边界");
+      warnings.push("响应 Schema 存在解析边界（动态字段 / 递归 / 缺失引用），见具体字段标记");
     }
     if (operation.parameters.some((parameter) => parameter.schema?.completeness === Completeness.PARTIAL)) {
-      warnings.push("请求体 schema 存在已明确标注的动态字段、递归或其他解析边界");
+      warnings.push("请求体 Schema 存在解析边界（动态字段 / 递归 / 缺失引用），见具体字段标记");
     }
     return warnings;
   }

@@ -143,7 +143,7 @@ export class SpringfoxDiscoveryAdapter implements DocumentDiscoveryAdapter {
         throw new AppError(
           ErrorCode.DISCOVERY_FAILED,
           ErrorStage.DISCOVER_SPEC,
-          "无法从展示页发现 Swagger 分组，请提供直接 Swagger JSON 地址",
+          "无法从展示页发现 Swagger 分组，请提供 Swagger JSON 直链地址",
           {
             requestedUrl: entry.requestedUrl,
             details: {

@@ -7,13 +7,13 @@
 [![MCP Server](https://img.shields.io/badge/MCP-Server-1B5E3C)](#mcp-tools)
 [![License MIT](https://img.shields.io/badge/License-MIT-2F6FEB)](LICENSE)
 
-连接 AI Agent 与实时 API 文档的只读 MCP 服务，让 AI 能够检索并展开 Swagger / Knife4j 接口定义。
+面向 Swagger 2.0 / Knife4j 文档的只读 MCP 服务，让 AI Agent 能够实时检索并展开接口定义。
 
-`swagger-docs-mcp` 面向需要读取后端接口文档的 AI Agent。它实时获取 Swagger 规范，将接口、参数和 Schema 转换为结构化结果，同时保持无状态、只读和来源可追溯。
+`swagger-docs-mcp` 面向需要读取后端接口文档的 AI Agent。它实时获取 Swagger 2.0 文档，将接口、参数和 Schema 转换为结构化结果，同时保持无状态、只读和来源可追溯。
 
 ## 特性
 
-- **实时读取**：支持 Swagger JSON，以及 Knife4j / Springfox `doc.html` 文档发现。
+- **实时读取**：支持 Swagger JSON，以及 Knife4j（Springfox）`doc.html` 文档发现。
 - **多维检索**：可按分类、路径、HTTP Method、关键词或 Knife4j 深链接定位接口。
 - **结构化 Schema**：递归展开受支持的请求体和响应模型，同时对动态 Map、循环、缺失引用和外部引用保留明确边界。
 - **结果可追溯**：每次查询均返回文档入口、实际规范地址、获取时间和文档指纹。

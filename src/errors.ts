@@ -10,7 +10,7 @@ export enum ErrorStage {
   CLIENT_SETUP = "client_setup"
 }
 
-/** 稳定错误码，MCP 客户端应基于 code 判断，不依赖易变化的提示文案。 */
+/** 稳定错误码，MCP 客户端应基于 code 判断，不依赖可能变化的提示文案。 */
 export enum ErrorCode {
   INVALID_URL = "INVALID_URL",
   ORIGIN_NOT_ALLOWED = "ORIGIN_NOT_ALLOWED",
