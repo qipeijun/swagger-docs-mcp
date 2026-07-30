@@ -2,6 +2,15 @@
 
 本项目遵循 [Semantic Versioning](https://semver.org/lang/zh-CN/)。
 
+## [0.1.2] - 2026-07-30
+
+### 修正
+
+- 优化所有对外文案：去除 Tool description 中的冗余规则重复，修正术语不精确、中英文混排和措辞模糊等问题。
+- 精简操作告警信息与错误消息，统一 Schema、HTTP 等大小写规范。
+- README 顶部新增落地页 badge 链接。
+- npm keywords 补充 `knife4j`、`springfox`。
+
 ## [0.1.1] - 2026-07-30
 
 ### 修正
@@ -22,5 +31,6 @@
 - 提供严格 CLI 参数校验、跨版本升级检查、安全卸载和可选来源白名单。
 - 增加 CI、npm Trusted Publishing 工作流、发布前完整检查和公开库入口。
 
+[0.1.2]: https://github.com/qipeijun/swagger-docs-mcp/releases/tag/v0.1.2
 [0.1.1]: https://github.com/qipeijun/swagger-docs-mcp/releases/tag/v0.1.1
 [0.1.0]: https://github.com/qipeijun/swagger-docs-mcp/releases/tag/v0.1.0
