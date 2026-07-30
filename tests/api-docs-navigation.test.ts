@@ -42,6 +42,13 @@ describe("文档地址导航", () => {
     });
     expect(result.data.candidates.categories?.pagination.total).toBe(2);
     expect(server.requests[0]).toBe("/doc.html");
+    expect(result.sourceNotice).toMatch(
+      new RegExp(
+        `^Swagger 来源：测试教学平台（Knife4j 分组：default）；\\[文档入口\\]\\(<${server.origin}/doc\\.html>\\)；`
+        + `\\[Swagger JSON\\]\\(<${server.origin}/v2/api-docs>\\)；`
+        + "获取时间：\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}（北京时间）；实时获取，未使用缓存。$"
+      )
+    );
   });
 
   it("分类链接返回该分类接口候选", async () => {
@@ -73,8 +80,7 @@ describe("文档地址导航", () => {
       },
       verified: true
     });
-    expect(result.sourceNotice).toContain("文档入口");
-    expect(result.sourceNotice).toContain("未使用缓存");
+    expect(result.sourceNotice).toContain("测试教学平台（Knife4j 分组：default）");
   });
 
   it("错误 hash 线索只返回候选，不自动猜测", async () => {
@@ -115,6 +121,7 @@ describe("文档地址导航", () => {
     expect(result.source.resolvedSpecUrl).toBeUndefined();
     expect(result.data.nextAction).toBe(NavigationNextAction.SELECT_GROUP);
     expect(result.data.candidates.groups).toEqual([{ name: "backend-a" }, { name: "backend-b" }]);
+    expect(result.sourceNotice).toContain("尚未选择分组");
     expect(server.requests).toEqual(["/doc.html", "/swagger-resources"]);
   });
 

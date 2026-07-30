@@ -2,6 +2,13 @@
 
 本项目遵循 [Semantic Versioning](https://semver.org/lang/zh-CN/)。
 
+## [0.1.4] - 2026-07-30
+
+### 修正
+
+- 精简 Swagger 来源说明，展示文档标题和实时验证的 Knife4j 分组，避免重复输出相同地址。
+- 将获取时间格式化为易读的北京时间，并使用明确的 Markdown 链接区分文档入口与 Swagger JSON。
+
 ## [0.1.3] - 2026-07-30
 
 ### 新增
@@ -42,6 +49,7 @@
 - 提供严格 CLI 参数校验、跨版本升级检查、安全卸载和可选来源白名单。
 - 增加 CI、npm Trusted Publishing 工作流、发布前完整检查和公开库入口。
 
+[0.1.4]: https://github.com/qipeijun/swagger-docs-mcp/compare/v0.1.3...v0.1.4
 [0.1.3]: https://github.com/qipeijun/swagger-docs-mcp/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/qipeijun/swagger-docs-mcp/releases/tag/v0.1.2
 [0.1.1]: https://github.com/qipeijun/swagger-docs-mcp/releases/tag/v0.1.1

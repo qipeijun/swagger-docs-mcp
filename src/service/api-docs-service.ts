@@ -25,6 +25,17 @@ import { Swagger2Parser } from "../swagger2/parser.js";
 
 export type DetailLevel = "summary" | "full";
 
+const BEIJING_TIME_FORMATTER = new Intl.DateTimeFormat("zh-CN", {
+  timeZone: "Asia/Shanghai",
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+  hour: "2-digit",
+  minute: "2-digit",
+  second: "2-digit",
+  hourCycle: "h23"
+});
+
 export interface CategoryQuery {
   docsUrl: string;
   group?: string;
@@ -460,14 +471,44 @@ export class ApiDocsService {
       .slice(0, 10);
   }
 
+  /** 将 ISO 获取时间转换为便于中文用户阅读的北京时间。 */
+  private formatFetchedAt(fetchedAt: string): string {
+    const parts = Object.fromEntries(
+      BEIJING_TIME_FORMATTER.formatToParts(new Date(fetchedAt))
+        .map((part) => [part.type, part.value])
+    );
+    return `${parts.year}-${parts.month}-${parts.day} ${parts.hour}:${parts.minute}:${parts.second}（北京时间）`;
+  }
+
+  private sourceLink(label: string, url: string): string {
+    return `[${label}](<${url}>)`;
+  }
+
+  private sourceIdentity(title?: string, group?: string): string {
+    if (title && group) return `${title}（Knife4j 分组：${group}）；`;
+    if (title) return `${title}；`;
+    if (group) return `Knife4j 分组：${group}；`;
+    return "";
+  }
+
+  /** 相同的文档入口和 Swagger JSON 地址只展示一次，避免来源说明重复。 */
+  private sourceLinks(documentEntryUrl: string, resolvedSpecUrl?: string): string {
+    if (!resolvedSpecUrl) {
+      return `${this.sourceLink("文档入口", documentEntryUrl)}；尚未选择分组`;
+    }
+    if (documentEntryUrl === resolvedSpecUrl) {
+      return this.sourceLink("Swagger JSON", resolvedSpecUrl);
+    }
+    return `${this.sourceLink("文档入口", documentEntryUrl)}；${this.sourceLink("Swagger JSON", resolvedSpecUrl)}`;
+  }
+
   private createSourceNotice(source: SourceMetadata): string {
-    const group = source.group ? `，分组：${source.group}` : "";
-    return `本次实时查询文档：${source.requestedUrl}；文档入口：${source.documentEntryUrl}；实际 Swagger 地址：${source.resolvedSpecUrl}${group}；获取时间：${source.fetchedAt}；未使用缓存。`;
+    const identity = this.sourceIdentity(source.title, source.group);
+    return `Swagger 来源：${identity}${this.sourceLinks(source.documentEntryUrl, source.resolvedSpecUrl)}；获取时间：${this.formatFetchedAt(source.fetchedAt)}；实时获取，未使用缓存。`;
   }
 
   private createInspectionSourceNotice(source: InspectionSourceMetadata): string {
-    const resolved = source.resolvedSpecUrl ? `；实际 Swagger 地址：${source.resolvedSpecUrl}` : "；尚未选择 Swagger 分组";
-    const group = source.group ? `，分组：${source.group}` : "";
-    return `本次实时检查文档：${source.requestedUrl}；文档入口：${source.documentEntryUrl}${resolved}${group}；获取时间：${source.fetchedAt}；未使用缓存。`;
+    const identity = this.sourceIdentity(source.title, source.group);
+    return `Swagger 来源：${identity}${this.sourceLinks(source.documentEntryUrl, source.resolvedSpecUrl)}；获取时间：${this.formatFetchedAt(source.fetchedAt)}；实时获取，未使用缓存。`;
   }
 }

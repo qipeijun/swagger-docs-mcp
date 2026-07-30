@@ -19,8 +19,10 @@ describe("ApiDocsService", () => {
   it("分类、搜索和分页返回实时来源", async () => {
     const categories = await service.listCategories(docsUrl, undefined, 1, 1);
     expect(categories.data.pagination).toMatchObject({ page: 1, pageSize: 1, total: 2, totalPages: 2 });
-    expect(categories.sourceNotice).toContain(docsUrl);
-    expect(categories.sourceNotice).toContain("未使用缓存");
+    expect(categories.sourceNotice).toMatch(
+      /^Swagger 来源：测试教学平台；\[Swagger JSON\]\(<http:\/\/[^>]+\/v2\/api-docs>\)；获取时间：\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}（北京时间）；实时获取，未使用缓存。$/
+    );
+    expect(categories.sourceNotice.split(docsUrl)).toHaveLength(2);
     expect(categories.source.cacheUsed).toBe(false);
 
     const search = await service.search({ docsUrl, keyword: "基线", page: 1, pageSize: 20 });
