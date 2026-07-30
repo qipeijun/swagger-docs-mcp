@@ -6,6 +6,7 @@
 [![Swagger 2.0](https://img.shields.io/badge/Swagger-2.0-85EA2D?logo=swagger&logoColor=111)](#支持范围)
 [![MCP Server](https://img.shields.io/badge/MCP-Server-1B5E3C)](#mcp-tools)
 [![License MIT](https://img.shields.io/badge/License-MIT-2F6FEB)](LICENSE)
+[![Website](https://img.shields.io/badge/Website-落地页-1B5E3C)](https://qipeijun.github.io/swagger-docs-mcp/)
 
 面向 Swagger 2.0 / Knife4j 文档的只读 MCP 服务，让 AI Agent 能够实时检索并展开接口定义。
 
