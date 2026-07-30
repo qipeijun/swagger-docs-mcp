@@ -1,6 +1,6 @@
 {
   "name": "swagger-docs-mcp",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Read-only MCP server for querying live Swagger 2.0 API documentation, including Knife4j / Springfox doc.html entry points",
   "type": "module",
   "main": "dist/public.js",

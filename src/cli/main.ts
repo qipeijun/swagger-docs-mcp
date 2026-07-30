@@ -1,10 +1,10 @@
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { AppError, ErrorCode, ErrorStage, toAppError } from "../errors.js";
 import { createMcpServer } from "../server/create-server.js";
-import { ApiDocsService } from "../service/api-docs-service.js";
 import { readPackageVersion } from "../version.js";
 import { formatClientCatalog, normalizeClient, type SupportedClient } from "./client-catalog.js";
 import { removeClient, setupClient } from "./client-setup.js";
+import { createDoctorReport, formatDoctorReport } from "./doctor.js";
 
 function writeLine(message = ""): void {
   process.stdout.write(`${message}\n`);
@@ -16,7 +16,7 @@ function printHelp(): void {
 用法：
   swagger-docs-mcp                         启动 stdio MCP 服务
   swagger-docs-mcp serve                   启动 stdio MCP 服务
-  swagger-docs-mcp doctor [docsUrl] [--group <name>]
+  swagger-docs-mcp doctor [docsUrl] [--group <name>] [--json]
   swagger-docs-mcp setup list
   swagger-docs-mcp setup <client> [--local]
   swagger-docs-mcp upgrade <client> [--local]
@@ -34,14 +34,14 @@ export type ParsedCliCommand =
   | { command: "serve" }
   | { command: "help" }
   | { command: "version" }
-  | { command: "doctor"; docsUrl?: string; group?: string }
+  | { command: "doctor"; docsUrl?: string; group?: string; json: boolean }
   | { command: "setup-list" }
   | { command: "setup"; client: string; local: boolean }
   | { command: "upgrade"; client: string; local: boolean }
   | { command: "remove"; client: string; local: boolean };
 
 function invalidArgument(message: string): never {
-  throw new AppError(ErrorCode.INVALID_CLI_ARGUMENT, ErrorStage.CLIENT_SETUP, message);
+  throw new AppError(ErrorCode.INVALID_CLI_ARGUMENT, ErrorStage.CLI_ARGUMENT, message);
 }
 
 function parseClientFlags(args: string[]): {
@@ -87,6 +87,7 @@ export function parseCliArguments(args: string[]): ParsedCliCommand {
   if (command === "doctor") {
     let docsUrl: string | undefined;
     let group: string | undefined;
+    let json = false;
     for (let index = 1; index < args.length; index += 1) {
       const argument = args[index]!;
       if (argument === "--group") {
@@ -95,6 +96,9 @@ export function parseCliArguments(args: string[]): ParsedCliCommand {
         if (!value || value.startsWith("-")) invalidArgument("--group 必须提供分组名称");
         group = value;
         index += 1;
+      } else if (argument === "--json") {
+        if (json) invalidArgument("--json 不能重复");
+        json = true;
       } else if (argument.startsWith("-")) {
         invalidArgument(`未知选项：${argument}`);
       } else if (docsUrl === undefined) {
@@ -104,7 +108,12 @@ export function parseCliArguments(args: string[]): ParsedCliCommand {
       }
     }
     if (group && !docsUrl) invalidArgument("--group 必须与 docsUrl 一起使用");
-    return { command: "doctor", ...(docsUrl ? { docsUrl } : {}), ...(group ? { group } : {}) };
+    return {
+      command: "doctor",
+      ...(docsUrl ? { docsUrl } : {}),
+      ...(group ? { group } : {}),
+      json
+    };
   }
   if (command === "setup") {
     if (args[1] === "list") {
@@ -137,28 +146,8 @@ async function serve(): Promise<void> {
   process.once("SIGTERM", () => { void close(); });
 }
 
-async function doctor(docsUrl?: string, group?: string): Promise<void> {
-  writeLine(`swagger-docs-mcp: ${readPackageVersion()}`);
-  writeLine(`Node.js: ${process.version}`);
-  const majorVersion = Number(process.versions.node.split(".")[0]);
-  if (!Number.isInteger(majorVersion) || majorVersion < 20) {
-    throw new AppError(
-      ErrorCode.UNSUPPORTED_NODE_VERSION,
-      ErrorStage.RUNTIME_CHECK,
-      `需要 Node.js 20 或更高版本，当前为 ${process.version}`
-    );
-  }
-  writeLine("数据源保存：禁用");
-  writeLine("跨调用缓存：禁用");
-  if (!docsUrl) {
-    writeLine("运行状态：正常。传入 docsUrl 可继续验证实时文档发现。 ");
-    return;
-  }
-
-  const loaded = await new ApiDocsService().load(docsUrl, group);
-  writeLine(loaded.sourceNotice);
-  writeLine(`接口数量：${loaded.document.operations.length}`);
-  writeLine(`文档指纹：${loaded.source.documentFingerprint}`);
+async function doctor(docsUrl?: string, group?: string, json = false): Promise<void> {
+  writeLine(formatDoctorReport(await createDoctorReport(docsUrl, group), json));
 }
 
 function parseClient(value: string | undefined): SupportedClient {
@@ -188,7 +177,7 @@ export async function runCli(args = process.argv.slice(2)): Promise<void> {
     return;
   }
   if (parsed.command === "doctor") {
-    await doctor(parsed.docsUrl, parsed.group);
+    await doctor(parsed.docsUrl, parsed.group, parsed.json);
     return;
   }
   if (parsed.command === "setup-list") {
@@ -214,7 +203,22 @@ export async function runCli(args = process.argv.slice(2)): Promise<void> {
   writeLine(removeClient(client, parsed.local));
 }
 
-export function reportCliError(error: unknown): void {
+/** 将 CLI 错误格式化为终端文本或供自动化消费的稳定 JSON。 */
+export function formatCliError(error: unknown, json: boolean): string {
   const appError = error instanceof AppError ? error : toAppError(error);
-  process.stderr.write(`[${appError.code}] ${appError.message}\n`);
+  if (!json) return `[${appError.code}] ${appError.message}`;
+  return JSON.stringify({
+    status: "error",
+    error: {
+      code: appError.code,
+      stage: appError.stage,
+      message: appError.message,
+      ...(appError.requestedUrl ? { requestedUrl: appError.requestedUrl } : {}),
+      ...(appError.details ? { details: appError.details } : {})
+    }
+  }, null, 2);
+}
+
+export function reportCliError(error: unknown, json = false): void {
+  process.stderr.write(`${formatCliError(error, json)}\n`);
 }

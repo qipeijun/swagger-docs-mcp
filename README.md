@@ -87,6 +87,9 @@ npx --yes swagger-docs-mcp@latest doctor http://127.0.0.1:8080/doc.html
 
 # 验证指定分组
 npx --yes swagger-docs-mcp@latest doctor https://example.com/doc.html --group exact-group-name
+
+# 输出供 CI 或脚本消费的 JSON
+npx --yes swagger-docs-mcp@latest doctor https://example.com/doc.html --json
 ```
 
 ## 客户端支持
@@ -135,6 +138,25 @@ http://203.0.113.10:8080/doc.html#/default/uniform-study-exam-stat-controller/ge
 ```
 
 示例地址 `203.0.113.10` 属于 IANA 保留地址，不对应真实服务。
+
+### 让主 Agent 继续开发和调试
+
+`swagger-docs-mcp` 负责实时读取并验证接口文档，Tool 结果会直接返回当前主 Agent。主 Agent 可继续检查项目代码、完成接口对接并运行测试，不需要手工复制请求和响应字段：
+
+```text
+请根据下面的接口文档调试当前功能：
+
+http://203.0.113.10:8080/doc.html#/default/uniform-study-exam-stat-controller/getUniformStudyExamStatDetailUsingGET
+
+要求：
+1. 先通过 swagger-docs-mcp 实时查询并验证接口，不猜测字段。
+2. 核对请求方法、路径、必填参数、请求体和响应字段。
+3. 检查当前项目已有的接口封装、调用位置和页面状态。
+4. 按项目现有模式修复或完成对接，不添加猜测式兼容分支。
+5. 运行必要的测试或页面调试，报告文档来源和实际验证结果。
+```
+
+主 Agent 需要同时具备目标代码、终端或浏览器调试能力，以及访问测试环境所需的网络和登录态。本 MCP 只读取文档，不调用 Swagger 中描述的业务接口；业务请求仍由项目运行时或主 Agent 的调试工具发起。
 
 ## MCP Tools
 

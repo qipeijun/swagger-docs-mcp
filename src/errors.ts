@@ -1,5 +1,6 @@
 /** 错误发生阶段，用于区分地址校验、网络获取、文档发现、解析和查询问题。 */
 export enum ErrorStage {
+  CLI_ARGUMENT = "cli_argument",
   VALIDATE_URL = "validate_url",
   FETCH_ENTRY = "fetch_entry",
   DISCOVER_SPEC = "discover_spec",
