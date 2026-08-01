@@ -106,4 +106,14 @@ describe("ApiDocsService", () => {
     await expect(service.getByPath({ docsUrl, path: "/baseline-class-stat" }))
       .rejects.toMatchObject({ code: ErrorCode.PATH_NOT_FOUND });
   });
+
+  it("拒绝仅包含空白字符的搜索词", async () => {
+    const requestCount = server.requests.length;
+    await expect(service.search({ docsUrl, keyword: "   ", page: 1, pageSize: 20 }))
+      .rejects.toMatchObject({
+        code: ErrorCode.INVALID_CLI_ARGUMENT,
+        stage: "query_document"
+      });
+    expect(server.requests).toHaveLength(requestCount);
+  });
 });

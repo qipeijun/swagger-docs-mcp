@@ -2,6 +2,13 @@
 
 本项目遵循 [Semantic Versioning](https://semver.org/lang/zh-CN/)。
 
+## [0.1.5] - 2026-08-01
+
+### 修正
+
+- 将响应体读取阶段的超时和连接中断转换为稳定网络错误，保留请求阶段与文档地址。
+- 在发起文档请求前拒绝空白搜索词，避免无效查询加载完整 Swagger 文档。
+
 ## [0.1.4] - 2026-07-30
 
 ### 修正
@@ -49,6 +56,7 @@
 - 提供严格 CLI 参数校验、跨版本升级检查、安全卸载和可选来源白名单。
 - 增加 CI、npm Trusted Publishing 工作流、发布前完整检查和公开库入口。
 
+[0.1.5]: https://github.com/qipeijun/swagger-docs-mcp/compare/v0.1.4...v0.1.5
 [0.1.4]: https://github.com/qipeijun/swagger-docs-mcp/compare/v0.1.3...v0.1.4
 [0.1.3]: https://github.com/qipeijun/swagger-docs-mcp/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/qipeijun/swagger-docs-mcp/releases/tag/v0.1.2

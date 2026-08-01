@@ -111,6 +111,16 @@ describe("MCP 协议集成", () => {
     );
   });
 
+  it("搜索工具在发起文档请求前拒绝空白关键词", async () => {
+    const requestCount = httpServer.requests.length;
+    const result = await client.callTool({
+      name: "search_apis",
+      arguments: { docsUrl, keyword: "   " }
+    });
+    expect(result.isError).toBe(true);
+    expect(httpServer.requests).toHaveLength(requestCount);
+  });
+
   it("失败响应也保留地址、阶段且不返回历史数据", async () => {
     const result = await client.callTool({
       name: "get_api_by_path",

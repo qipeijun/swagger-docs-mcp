@@ -15,6 +15,10 @@ const DEFAULT_TIMEOUT_MS = 10_000;
 const DEFAULT_MAX_RESPONSE_BYTES = 20 * 1024 * 1024;
 const DEFAULT_MAX_REDIRECTS = 3;
 
+function isTimeoutError(error: unknown): boolean {
+  return error instanceof Error && (error.name === "TimeoutError" || error.name === "AbortError");
+}
+
 function normalizeAllowedOrigin(rawOrigin: string): string {
     let url: URL;
     try {
@@ -191,7 +195,7 @@ export class SafeHttpClient {
         signal: AbortSignal.timeout(this.timeoutMs)
       });
     } catch (error) {
-      const timeout = error instanceof Error && (error.name === "TimeoutError" || error.name === "AbortError");
+      const timeout = isTimeoutError(error);
       throw new AppError(
         timeout ? ErrorCode.REQUEST_TIMEOUT : ErrorCode.HTTP_ERROR,
         stage,
@@ -219,7 +223,19 @@ export class SafeHttpClient {
     const chunks: Uint8Array[] = [];
     let totalBytes = 0;
     while (true) {
-      const { done, value } = await reader.read();
+      let readResult: ReadableStreamReadResult<Uint8Array>;
+      try {
+        readResult = await reader.read();
+      } catch (error) {
+        const timeout = isTimeoutError(error);
+        throw new AppError(
+          timeout ? ErrorCode.REQUEST_TIMEOUT : ErrorCode.HTTP_ERROR,
+          stage,
+          timeout ? `文档请求超过 ${this.timeoutMs}ms` : "文档响应体读取失败",
+          { requestedUrl, cause: error }
+        );
+      }
+      const { done, value } = readResult;
       if (done) {
         break;
       }

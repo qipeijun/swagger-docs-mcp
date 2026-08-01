@@ -357,8 +357,13 @@ export class ApiDocsService {
   }
 
   async search(query: SearchQuery): Promise<ToolEnvelope<Paginated<ApiOperationSummary & { matchedFields: string[] }>>> {
-    const loaded = await this.load(query.docsUrl, query.group);
     const keyword = query.keyword.trim().toLocaleLowerCase();
+    if (!keyword) {
+      throw new AppError(ErrorCode.INVALID_CLI_ARGUMENT, ErrorStage.QUERY_DOCUMENT, "搜索关键词不能为空", {
+        requestedUrl: query.docsUrl
+      });
+    }
+    const loaded = await this.load(query.docsUrl, query.group);
     const matches = loaded.document.operations.flatMap((operation) => {
       const fields: Array<[string, string]> = [
         ["path", operation.path],

@@ -173,6 +173,38 @@ describe("文档发现与网络边界", () => {
       .rejects.toMatchObject({ code: ErrorCode.INVALID_DOCUMENT });
   });
 
+  it("响应体读取异常保留网络阶段和稳定错误码", async () => {
+    const createFailingFetch = (error: Error): typeof fetch => (async () => new Response(
+      new ReadableStream({
+        start(controller) {
+          controller.error(error);
+        }
+      }),
+      { status: 200, headers: { "content-type": "application/json" } }
+    )) as typeof fetch;
+
+    const timeoutClient = new SafeHttpClient({
+      timeoutMs: 20,
+      fetchImpl: createFailingFetch(new DOMException("响应体超时", "TimeoutError"))
+    });
+    await expect(timeoutClient.get("https://api.example.com/v2/api-docs", ErrorStage.FETCH_SPEC))
+      .rejects.toMatchObject({
+        code: ErrorCode.REQUEST_TIMEOUT,
+        stage: ErrorStage.FETCH_SPEC,
+        requestedUrl: "https://api.example.com/v2/api-docs"
+      });
+
+    const interruptedClient = new SafeHttpClient({
+      fetchImpl: createFailingFetch(new TypeError("terminated"))
+    });
+    await expect(interruptedClient.get("https://api.example.com/v2/api-docs", ErrorStage.FETCH_SPEC))
+      .rejects.toMatchObject({
+        code: ErrorCode.HTTP_ERROR,
+        stage: ErrorStage.FETCH_SPEC,
+        requestedUrl: "https://api.example.com/v2/api-docs"
+      });
+  });
+
   it("OpenAPI 3 返回明确的不支持错误", async () => {
     const server = await startHttpServer((_request, response) => sendJson(response, openApi3Fixture));
     servers.push(server);

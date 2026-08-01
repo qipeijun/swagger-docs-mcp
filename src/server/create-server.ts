@@ -170,7 +170,7 @@ export function createMcpServer(service = new ApiDocsService()): McpServer {
     inputSchema: z.object({
       docsUrl: docsUrlSchema,
       group: groupSchema,
-      keyword: z.string().min(1).describe("搜索关键词"),
+      keyword: z.string().trim().min(1).describe("搜索关键词，不能仅包含空白字符"),
       page: pageSchema,
       pageSize: pageSizeSchema
     }),
