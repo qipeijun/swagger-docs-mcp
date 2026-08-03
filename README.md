@@ -1,5 +1,7 @@
 # swagger-docs-mcp
 
+**简体中文** | [English](README.en.md) | [日本語](README.ja.md) | [한국어](README.ko.md)
+
 [![npm version](https://img.shields.io/npm/v/swagger-docs-mcp?label=npm&color=CB3837)](https://www.npmjs.com/package/swagger-docs-mcp)
 [![CI](https://github.com/qipeijun/swagger-docs-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/qipeijun/swagger-docs-mcp/actions/workflows/ci.yml)
 [![Node.js 20+](https://img.shields.io/badge/Node.js-20%2B-339933?logo=nodedotjs&logoColor=white)](https://nodejs.org/)

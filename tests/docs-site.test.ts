@@ -3,6 +3,8 @@ import { describe, expect, it } from "vitest";
 
 describe("官网发布内容", () => {
   const html = readFileSync(new URL("../docs/index.html", import.meta.url), "utf8");
+  const messagesMatch = html.match(/<script id="i18nMessages" type="application\/json">([\s\S]*?)<\/script>/);
+  const messages = JSON.parse(messagesMatch?.[1] ?? "{}") as Record<string, Record<string, string | string[]>>;
 
   it("使用项目相对首页链接并准确展示产品定位与安装状态", () => {
     expect(html).toContain('href="./" class="nav-logo"');
@@ -61,5 +63,65 @@ describe("官网发布内容", () => {
     expect(html).toContain("不要猜测客户端或配置格式");
     expect(html).toContain("不要覆盖、删除或猜测修复");
     expect(html).toContain("npx --yes swagger-docs-mcp@latest doctor");
+  });
+
+  it("提供四种完整语言并支持自动识别、URL 选择和本地记忆", () => {
+    expect(messagesMatch).not.toBeNull();
+    expect(Object.keys(messages)).toEqual(["zh-CN", "en", "ja", "ko"]);
+
+    const baseKeys = Object.keys(messages["zh-CN"] ?? {}).sort();
+    for (const locale of ["en", "ja", "ko"]) {
+      expect(Object.keys(messages[locale] ?? {}).sort()).toEqual(baseKeys);
+      expect(messages[locale]?.terminalLines).toHaveLength(7);
+    }
+
+    const referencedKeys = Array.from(
+      html.matchAll(/data-i18n(?:-html|-aria-label)?="([^"]+)"/g),
+      (match) => match[1],
+    ).filter((key): key is string => key !== undefined);
+    for (const key of referencedKeys) {
+      expect(messages["zh-CN"]).toHaveProperty(key);
+    }
+
+    expect(html).toContain('id="languageTrigger"');
+    expect(html).toContain('id="languageMenu"');
+    expect(html).toContain('class="language-picker"');
+    expect(html).toContain('data-icon="globe-2"');
+    expect(html).toContain('data-icon="chevron-down"');
+    expect(html).toContain('role="menuitemradio"');
+    expect(html).toContain('aria-haspopup="menu"');
+    expect(html).toContain("backdrop-filter:blur(22px) saturate(145%)");
+    expect(html).toContain("event.key === 'Escape'");
+    expect(html).toContain("event.key === 'ArrowDown'");
+    expect(html).toContain("languagePicker.addEventListener('focusout'");
+    expect(html).toContain("transition-duration:0.01ms !important");
+    expect(html).toContain("new URLSearchParams(window.location.search).get('lang')");
+    expect(html).toContain("navigator.languages");
+    expect(html).toContain("window.localStorage.getItem('swagger-docs-mcp-locale')");
+    expect(html).toContain("window.localStorage.setItem('swagger-docs-mcp-locale', currentLocale)");
+    expect(html).toContain("document.documentElement.lang = locale");
+    for (const locale of ["zh-CN", "en", "ja", "ko", "x-default"]) {
+      expect(html).toContain(`hreflang="${locale}"`);
+    }
+  });
+
+  it("README 提供内容对等的多语言入口", () => {
+    const readmes = ["README.md", "README.en.md", "README.ja.md", "README.ko.md"].map((name) =>
+      readFileSync(new URL(`../${name}`, import.meta.url), "utf8"),
+    );
+
+    for (const readme of readmes) {
+      const languageNavigation = readme.split("\n").slice(0, 5).join("\n");
+      expect(languageNavigation).toContain("简体中文");
+      expect(languageNavigation).toContain("English");
+      expect(languageNavigation).toContain("日本語");
+      expect(languageNavigation).toContain("한국어");
+      expect(languageNavigation.match(/README(?:\.(?:en|ja|ko))?\.md/g)).toHaveLength(3);
+      expect(readme).toContain("npx --yes swagger-docs-mcp@latest setup codex");
+      expect(readme).toContain("npx --yes swagger-docs-mcp@latest doctor");
+      expect(readme).toContain("SWAGGER_DOCS_ALLOWED_ORIGINS");
+      expect(readme).toContain("`inspect_api_docs`");
+      expect(readme).toContain("OpenAPI 3.x");
+    }
   });
 });
